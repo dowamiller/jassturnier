@@ -15,11 +15,11 @@ public class Gang {
 
     private int id;
     private int gangNr;
-    private ArrayList<Spiel> spiele;
+    private ArrayList<Spiel> games;
     private ArrayList<Team> teams;
 
     public void setSpiele(ArrayList<Spiel> spiele) {
-        this.spiele = spiele;
+        this.games = spiele;
     }
 
     public void setTeams(ArrayList<Team> teams) {
@@ -29,7 +29,7 @@ public class Gang {
     public Gang(int id, int gangNr) {
         this.id = id;
         this.gangNr = gangNr;
-        this.spiele = new ArrayList<>();
+        this.games = new ArrayList<>();
         this.teams = new ArrayList<>();
     }
 
@@ -50,10 +50,10 @@ public class Gang {
     }
 
     public void addGame(Spiel s) {
-        spiele.add(s);
+        games.add(s);
     }
 
     public ArrayList<Spiel> getGames() {
-        return spiele; //To change body of generated methods, choose Tools | Templates.
+        return games; //To change body of generated methods, choose Tools | Templates.
     }
 }
