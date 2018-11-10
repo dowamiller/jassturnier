@@ -5,6 +5,7 @@
  */
 package ch.dowa.jassturnier.control;
 
+import ch.dowa.jassturnier.database.SQLDriver;
 import ch.dowa.jassturnier.database.SQLQuerryExecutor;
 import ch.dowa.jassturnier.objectModel.Gang;
 import ch.dowa.jassturnier.objectModel.Spiel;
@@ -12,12 +13,9 @@ import ch.dowa.jassturnier.objectModel.Spieler;
 import ch.dowa.jassturnier.objectModel.Team;
 import ch.dowa.jassturnier.objectModel.Turnier;
 import ch.dowa.jassturnier.view.JassturnierGui;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -30,6 +28,7 @@ public class TurnierController {
 
     public TurnierController(JassturnierGui gui) {
         myGui = gui;
+        SQLDriver.getInstance().setGui(gui);
     }
 
     public void setActTurnier(Turnier actTurnier) {
@@ -154,38 +153,31 @@ public class TurnierController {
         ArrayList<String> seats = new ArrayList<>();
         if (actTurnier.numberOfGaenge() > 0) {
             String[] placeLables = SQLQuerryExecutor.getPlaces();
-            ResultSet result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(actTurnier.getId());
+            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(actTurnier.getId());
             Gang g = actTurnier.getGaenge().get(gangIndex);
-            try {
-                while (result.next()) {
-                    names.add(result.getString("Nachname") + " " + result.getString("Vorname"));
-                    int playerID = result.getInt("ID");
-                    for (Spiel s : g.getGames()) {
-                        if (s.getTeam1().getSpieler1().getId() == playerID) {
-                            tables.add(String.valueOf(s.getTischNr()));
-                            seats.add(placeLables[0]);
-                            break;
-                        } else if (s.getTeam1().getSpieler2().getId() == playerID) {
-                            tables.add(String.valueOf(s.getTischNr()));
-                            seats.add(placeLables[2]);
-                            break;
-                        } else if (s.getTeam2().getSpieler1().getId() == playerID) {
-                            tables.add(String.valueOf(s.getTischNr()));
-                            seats.add(placeLables[1]);
-                            break;
-                        } else if (s.getTeam2().getSpieler2().getId() == playerID) {
-                            tables.add(String.valueOf(s.getTischNr()));
-                            seats.add(placeLables[3]);
-                            break;
-
-                        }
+            for (Map m : result) {
+                names.add((String) m.get("NACHNAME") + " " + (String) m.get("VORNAME"));
+                int playerID = (Integer) m.get("ID");
+                for (Spiel s : g.getGames()) {
+                    if (s.getTeam1().getSpieler1().getId() == playerID) {
+                        tables.add(String.valueOf(s.getTischNr()));
+                        seats.add(placeLables[0]);
+                        break;
+                    } else if (s.getTeam1().getSpieler2().getId() == playerID) {
+                        tables.add(String.valueOf(s.getTischNr()));
+                        seats.add(placeLables[2]);
+                        break;
+                    } else if (s.getTeam2().getSpieler1().getId() == playerID) {
+                        tables.add(String.valueOf(s.getTischNr()));
+                        seats.add(placeLables[1]);
+                        break;
+                    } else if (s.getTeam2().getSpieler2().getId() == playerID) {
+                        tables.add(String.valueOf(s.getTischNr()));
+                        seats.add(placeLables[3]);
+                        break;
                     }
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(TurnierController.class
-                        .getName()).log(Level.SEVERE, null, ex);
             }
-
         }
         return new PlaceMappingType(names, tables, seats);
     }

@@ -1,34 +1,34 @@
-create table Turnier(
-	ID int,
+create table if not exists Turnier(
+    ID int,
     Jahr int,
     anzahlTische int,
     primary key(ID)
     );
     
-create table Spieler(
-	ID int,
+create table if not exists Spieler(
+    ID int,
     Vorname varchar(30),
     Nachname varchar(30),
     primary key(ID)
     );
     
-create table nehmenTeil(
+create table if not exists nehmenTeil(
     Turnier int,
     Spieler int,
     foreign key(Turnier) references Turnier(ID) ON DELETE CASCADE,
     foreign key(Spieler) references Spieler(ID)
     );
     
-create table Gang(
-	ID int,
+create table  if not exists Gang(
+    ID int,
     GangNR int,
     Turnier int,
     primary key(ID),
     foreign key(Turnier) references Turnier(ID) ON DELETE CASCADE
     );
     
-create table Team(
-	ID int,
+create table if not exists Team(
+    ID int,
     Punkte int,
     Spieler1 int,
     Spieler2 int,
@@ -39,8 +39,8 @@ create table Team(
     foreign key (Gang) references Gang(ID) ON DELETE CASCADE
     );
     
-create table Spiel(
-	ID int,
+create table if not exists Spiel(
+    ID int,
     TischNr int,
     Gang int,
     Punkte1 int,

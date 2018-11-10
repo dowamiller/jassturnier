@@ -18,18 +18,20 @@ import com.itextpdf.text.DocumentException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -44,6 +46,7 @@ public class JassturnierGui extends javax.swing.JFrame {
      * Creates new form JassturnierGui
      */
     public JassturnierGui() {
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
         addMouseListener(playerTable, turnierPlayerTable, numberOfTablesLabel, additionalPlayerLable);
         addMouseListener(playerTableChange, turnierPlayerTableChange, numberOfTablesLabelChange, additionalPlayerLableChange);
@@ -71,6 +74,7 @@ public class JassturnierGui extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         turnierWizzardDialog = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
@@ -137,19 +141,40 @@ public class JassturnierGui extends javax.swing.JFrame {
         exportRankintItem = new javax.swing.JMenuItem();
         exportPlaceMappingItem = new javax.swing.JMenuItem();
 
-        turnierWizzardDialog.setResizable(false);
-        turnierWizzardDialog.setSize(new java.awt.Dimension(700, 800));
-        turnierWizzardDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        turnierWizzardDialog.setSize(new java.awt.Dimension(2000, 1000));
+        java.awt.GridBagLayout turnierWizzardDialogLayout = new java.awt.GridBagLayout();
+        turnierWizzardDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0};
+        turnierWizzardDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
+        turnierWizzardDialog.getContentPane().setLayout(turnierWizzardDialogLayout);
 
         jLabel1.setText("Jahr:");
         jLabel1.setToolTipText("");
-        turnierWizzardDialog.getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 14, 69, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        turnierWizzardDialog.getContentPane().add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("Anzahl Tische:");
-        turnierWizzardDialog.getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        turnierWizzardDialog.getContentPane().add(jLabel2, gridBagConstraints);
 
         yearSpinner.setModel(new javax.swing.SpinnerNumberModel(2000, 2000, 2025, 1));
-        turnierWizzardDialog.getContentPane().add(yearSpinner, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 11, 80, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        turnierWizzardDialog.getContentPane().add(yearSpinner, gridBagConstraints);
 
         playerTable.setAutoCreateRowSorter(true);
         playerTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -175,13 +200,24 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        playerTable.setRowHeight(30);
+        playerTable.setRowMargin(3);
         playerTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(playerTable);
         if (playerTable.getColumnModel().getColumnCount() > 0) {
             playerTable.getColumnModel().getColumn(0).setPreferredWidth(35);
+            playerTable.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
         }
 
-        turnierWizzardDialog.getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 30, 200, 700));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        turnierWizzardDialog.getContentPane().add(jScrollPane1, gridBagConstraints);
 
         jScrollPane3.setName(""); // NOI18N
 
@@ -209,19 +245,42 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        turnierPlayerTable.setRowHeight(30);
+        turnierPlayerTable.setRowMargin(3);
         turnierPlayerTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(turnierPlayerTable);
         if (turnierPlayerTable.getColumnModel().getColumnCount() > 0) {
             turnierPlayerTable.getColumnModel().getColumn(0).setPreferredWidth(35);
+            turnierPlayerTable.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
         }
 
-        turnierWizzardDialog.getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, 200, 700));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        turnierWizzardDialog.getContentPane().add(jScrollPane3, gridBagConstraints);
 
         jLabel3.setText("Spieler:");
-        turnierWizzardDialog.getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        turnierWizzardDialog.getContentPane().add(jLabel3, gridBagConstraints);
 
         jLabel4.setText("Turnierspieler:");
-        turnierWizzardDialog.getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        turnierWizzardDialog.getContentPane().add(jLabel4, gridBagConstraints);
 
         startTurnier.setText("Turnier starten");
         startTurnier.addActionListener(new java.awt.event.ActionListener() {
@@ -229,7 +288,14 @@ public class JassturnierGui extends javax.swing.JFrame {
                 startTurnierActionPerformed(evt);
             }
         });
-        turnierWizzardDialog.getContentPane().add(startTurnier, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 130, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        turnierWizzardDialog.getContentPane().add(startTurnier, gridBagConstraints);
 
         addPlayerButton.setText("Spieler hinzufügen");
         addPlayerButton.addActionListener(new java.awt.event.ActionListener() {
@@ -237,30 +303,80 @@ public class JassturnierGui extends javax.swing.JFrame {
                 addPlayerButtonActionPerformed(evt);
             }
         });
-        turnierWizzardDialog.getContentPane().add(addPlayerButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 130, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        turnierWizzardDialog.getContentPane().add(addPlayerButton, gridBagConstraints);
 
         numberOfTablesLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         numberOfTablesLabel.setText("0");
-        turnierWizzardDialog.getContentPane().add(numberOfTablesLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 50, 80, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        turnierWizzardDialog.getContentPane().add(numberOfTablesLabel, gridBagConstraints);
 
         jLabel7.setText("zusätzliche Spieler:");
-        turnierWizzardDialog.getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        turnierWizzardDialog.getContentPane().add(jLabel7, gridBagConstraints);
 
         additionalPlayerLable.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         additionalPlayerLable.setText("0");
-        turnierWizzardDialog.getContentPane().add(additionalPlayerLable, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, 50, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        turnierWizzardDialog.getContentPane().add(additionalPlayerLable, gridBagConstraints);
 
-        addPlayerDialog.setResizable(false);
-        addPlayerDialog.setSize(new java.awt.Dimension(200, 135));
-        addPlayerDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        addPlayerDialog.setSize(new java.awt.Dimension(400, 200));
+        java.awt.GridBagLayout addPlayerDialogLayout = new java.awt.GridBagLayout();
+        addPlayerDialogLayout.columnWidths = new int[] {0, 5, 0};
+        addPlayerDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0};
+        addPlayerDialog.getContentPane().setLayout(addPlayerDialogLayout);
 
         jLabel5.setText("Name:");
-        addPlayerDialog.getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        addPlayerDialog.getContentPane().add(jLabel5, gridBagConstraints);
 
         jLabel6.setText("Vorname:");
-        addPlayerDialog.getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, -1));
-        addPlayerDialog.getContentPane().add(preNameTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, 100, -1));
-        addPlayerDialog.getContentPane().add(nameTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 100, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        addPlayerDialog.getContentPane().add(jLabel6, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        addPlayerDialog.getContentPane().add(preNameTextField, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        addPlayerDialog.getContentPane().add(nameTextField, gridBagConstraints);
 
         addButton.setText("hinzufügen");
         addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -268,11 +384,20 @@ public class JassturnierGui extends javax.swing.JFrame {
                 addButtonActionPerformed(evt);
             }
         });
-        addPlayerDialog.getContentPane().add(addButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        addPlayerDialog.getContentPane().add(addButton, gridBagConstraints);
 
-        turnierOverviewDialog.setResizable(false);
-        turnierOverviewDialog.setSize(new java.awt.Dimension(360, 260));
-        turnierOverviewDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        turnierOverviewDialog.setSize(new java.awt.Dimension(720, 520));
+        java.awt.GridBagLayout turnierOverviewDialogLayout = new java.awt.GridBagLayout();
+        turnierOverviewDialogLayout.columnWidths = new int[] {0, 5, 0};
+        turnierOverviewDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
+        turnierOverviewDialog.getContentPane().setLayout(turnierOverviewDialogLayout);
 
         turnierOverviewTable.setAutoCreateRowSorter(true);
         turnierOverviewTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -298,10 +423,21 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        turnierOverviewTable.setRowHeight(30);
+        turnierOverviewTable.setRowMargin(3);
         turnierOverviewTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane4.setViewportView(turnierOverviewTable);
 
-        turnierOverviewDialog.getContentPane().add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 220));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        turnierOverviewDialog.getContentPane().add(jScrollPane4, gridBagConstraints);
 
         newTurnier.setText("neues Turnier");
         newTurnier.addActionListener(new java.awt.event.ActionListener() {
@@ -309,7 +445,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 newTurnierActionPerformed(evt);
             }
         });
-        turnierOverviewDialog.getContentPane().add(newTurnier, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 120, 130, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        turnierOverviewDialog.getContentPane().add(newTurnier, gridBagConstraints);
 
         loadTurnier.setText("Turnier laden");
         loadTurnier.addActionListener(new java.awt.event.ActionListener() {
@@ -317,7 +459,12 @@ public class JassturnierGui extends javax.swing.JFrame {
                 loadTurnierActionPerformed(evt);
             }
         });
-        turnierOverviewDialog.getContentPane().add(loadTurnier, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 60, 130, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        turnierOverviewDialog.getContentPane().add(loadTurnier, gridBagConstraints);
 
         deleteTurnier.setText("Turnier löschen");
         deleteTurnier.addActionListener(new java.awt.event.ActionListener() {
@@ -325,14 +472,27 @@ public class JassturnierGui extends javax.swing.JFrame {
                 deleteTurnierActionPerformed(evt);
             }
         });
-        turnierOverviewDialog.getContentPane().add(deleteTurnier, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 130, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        turnierOverviewDialog.getContentPane().add(deleteTurnier, gridBagConstraints);
 
-        changePlayerListDialog.setResizable(false);
-        changePlayerListDialog.setSize(new java.awt.Dimension(700, 800));
-        changePlayerListDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        changePlayerListDialog.setSize(new java.awt.Dimension(2000, 1000));
+        java.awt.GridBagLayout changePlayerListDialogLayout = new java.awt.GridBagLayout();
+        changePlayerListDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0};
+        changePlayerListDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
+        changePlayerListDialog.getContentPane().setLayout(changePlayerListDialogLayout);
 
         jLabel9.setText("Anzahl Tische:");
-        changePlayerListDialog.getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        changePlayerListDialog.getContentPane().add(jLabel9, gridBagConstraints);
 
         playerTableChange.setAutoCreateRowSorter(true);
         playerTableChange.setModel(new javax.swing.table.DefaultTableModel(
@@ -358,13 +518,24 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        playerTableChange.setRowHeight(30);
+        playerTableChange.setRowMargin(3);
         playerTableChange.getTableHeader().setReorderingAllowed(false);
         jScrollPane5.setViewportView(playerTableChange);
         if (playerTableChange.getColumnModel().getColumnCount() > 0) {
             playerTableChange.getColumnModel().getColumn(0).setPreferredWidth(35);
+            playerTableChange.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
         }
 
-        changePlayerListDialog.getContentPane().add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 30, 200, 700));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        changePlayerListDialog.getContentPane().add(jScrollPane5, gridBagConstraints);
 
         jScrollPane6.setName(""); // NOI18N
 
@@ -392,19 +563,42 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        turnierPlayerTableChange.setRowHeight(30);
+        turnierPlayerTableChange.setRowMargin(3);
         turnierPlayerTableChange.getTableHeader().setReorderingAllowed(false);
         jScrollPane6.setViewportView(turnierPlayerTableChange);
         if (turnierPlayerTableChange.getColumnModel().getColumnCount() > 0) {
             turnierPlayerTableChange.getColumnModel().getColumn(0).setPreferredWidth(35);
+            turnierPlayerTableChange.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
         }
 
-        changePlayerListDialog.getContentPane().add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, 200, 700));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        changePlayerListDialog.getContentPane().add(jScrollPane6, gridBagConstraints);
 
         jLabel10.setText("Spieler:");
-        changePlayerListDialog.getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        changePlayerListDialog.getContentPane().add(jLabel10, gridBagConstraints);
 
         jLabel11.setText("Turnierspieler:");
-        changePlayerListDialog.getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, -1, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        changePlayerListDialog.getContentPane().add(jLabel11, gridBagConstraints);
 
         endChanges.setText("Bearbeitung beenden");
         endChanges.addActionListener(new java.awt.event.ActionListener() {
@@ -412,7 +606,14 @@ public class JassturnierGui extends javax.swing.JFrame {
                 endChangesActionPerformed(evt);
             }
         });
-        changePlayerListDialog.getContentPane().add(endChanges, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 150, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePlayerListDialog.getContentPane().add(endChanges, gridBagConstraints);
 
         addPlayerButtonChange.setText("Spieler hinzufügen");
         addPlayerButtonChange.addActionListener(new java.awt.event.ActionListener() {
@@ -420,22 +621,45 @@ public class JassturnierGui extends javax.swing.JFrame {
                 addPlayerButtonChangeActionPerformed(evt);
             }
         });
-        changePlayerListDialog.getContentPane().add(addPlayerButtonChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 150, -1));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePlayerListDialog.getContentPane().add(addPlayerButtonChange, gridBagConstraints);
 
         numberOfTablesLabelChange.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         numberOfTablesLabelChange.setText("0");
-        changePlayerListDialog.getContentPane().add(numberOfTablesLabelChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 80, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        changePlayerListDialog.getContentPane().add(numberOfTablesLabelChange, gridBagConstraints);
 
         jLabel12.setText("zusätzliche Spieler:");
-        changePlayerListDialog.getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePlayerListDialog.getContentPane().add(jLabel12, gridBagConstraints);
 
         additionalPlayerLableChange.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         additionalPlayerLableChange.setText("0");
-        changePlayerListDialog.getContentPane().add(additionalPlayerLableChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 30, 50, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePlayerListDialog.getContentPane().add(additionalPlayerLableChange, gridBagConstraints);
 
-        changeNameDialog.setResizable(false);
-        changeNameDialog.setSize(new java.awt.Dimension(250, 350));
-        changeNameDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        changeNameDialog.setSize(new java.awt.Dimension(500, 1000));
+        changeNameDialog.getContentPane().setLayout(new java.awt.GridBagLayout());
 
         changeNameTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -460,13 +684,26 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        changeNameTable.setRowHeight(30);
+        changeNameTable.setRowMargin(3);
         changeNameTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane7.setViewportView(changeNameTable);
+        if (changeNameTable.getColumnModel().getColumnCount() > 0) {
+            changeNameTable.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
+        }
 
-        changeNameDialog.getContentPane().add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 270, 370));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        changeNameDialog.getContentPane().add(jScrollPane7, gridBagConstraints);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setSize(new java.awt.Dimension(1000, 800));
+        setPreferredSize(new java.awt.Dimension(2400, 1200));
+        setSize(new java.awt.Dimension(856, 446));
 
         tabGang.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -494,10 +731,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableGang1.setRowHeight(30);
+        tableGang1.setRowMargin(3);
         tableGang1.getTableHeader().setReorderingAllowed(false);
         scrollGang1.setViewportView(tableGang1);
         if (tableGang1.getColumnModel().getColumnCount() > 0) {
             tableGang1.getColumnModel().getColumn(0).setResizable(false);
+            tableGang1.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
             tableGang1.getColumnModel().getColumn(1).setResizable(false);
             tableGang1.getColumnModel().getColumn(2).setResizable(false);
             tableGang1.getColumnModel().getColumn(3).setResizable(false);
@@ -530,8 +770,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableGang2.setRowHeight(30);
+        tableGang2.setRowMargin(3);
         tableGang2.getTableHeader().setReorderingAllowed(false);
         scrollGang2.setViewportView(tableGang2);
+        if (tableGang2.getColumnModel().getColumnCount() > 0) {
+            tableGang2.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
+        }
 
         tabGang.addTab("Gang 2", scrollGang2);
 
@@ -559,8 +804,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableGang3.setRowHeight(30);
+        tableGang3.setRowMargin(3);
         tableGang3.getTableHeader().setReorderingAllowed(false);
         scrollGang3.setViewportView(tableGang3);
+        if (tableGang3.getColumnModel().getColumnCount() > 0) {
+            tableGang3.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
+        }
 
         tabGang.addTab("Gang 3", scrollGang3);
 
@@ -588,8 +838,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableGang4.setRowHeight(30);
+        tableGang4.setRowMargin(3);
         tableGang4.getTableHeader().setReorderingAllowed(false);
         scrollGang4.setViewportView(tableGang4);
+        if (tableGang4.getColumnModel().getColumnCount() > 0) {
+            tableGang4.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
+        }
 
         tabGang.addTab("Gang 4", scrollGang4);
 
@@ -617,10 +872,13 @@ public class JassturnierGui extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        rankingTable.setRowHeight(30);
+        rankingTable.setRowMargin(3);
         rankingTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(rankingTable);
         if (rankingTable.getColumnModel().getColumnCount() > 0) {
             rankingTable.getColumnModel().getColumn(0).setResizable(false);
+            rankingTable.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
             rankingTable.getColumnModel().getColumn(1).setResizable(false);
             rankingTable.getColumnModel().getColumn(2).setResizable(false);
             rankingTable.getColumnModel().getColumn(3).setResizable(false);
@@ -702,17 +960,18 @@ public class JassturnierGui extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabGang, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
+                .addComponent(tabGang))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabGang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(tabGang, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jScrollPane2)
         );
 
-        pack();
+        setSize(new java.awt.Dimension(872, 510));
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void startTurnierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startTurnierActionPerformed
@@ -741,9 +1000,10 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         int id = SQLQuerryExecutor.getLastIDofTable("spieler") + 1;
-        String[] values = {String.valueOf(id), "\"" + preNameTextField.getText() + "\"", "\"" + nameTextField.getText() + "\""};
+        String[] values = {String.valueOf(id), "'" + preNameTextField.getText() + "'", "'" + nameTextField.getText() + "'"};
         SQLQuerryExecutor.addValuesToTable("spieler", values);
         setUpPlayerTableWizzardDialog(false);
+        setUpPlayerTableChangeDialog();
         addPlayerDialog.setVisible(false);
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -852,14 +1112,10 @@ public class JassturnierGui extends javax.swing.JFrame {
         ArrayList<String> names = new ArrayList<>();
         String header = "STV-Schenkon Jassturnier " + String.valueOf(controller.getActTurnier().getJahr()) + " Spielerliste";
         String path = "Jassturnier_" + String.valueOf(controller.getActTurnier().getJahr()) + "_Spielerliste.pdf";
-        ResultSet result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
-        try {
-            while (result.next()) {
-                String name = result.getString("Nachname") + " " + result.getString("Vorname");
-                names.add(name);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+        ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+        for( Map m : result){
+            String name = (String) m.get("NACHNAME") + " " + (String) m.get("VORNAME");
+            names.add(name);
         }
         try {
             new PlayerListPDF(names, header).createPdf(path);
@@ -878,13 +1134,14 @@ public class JassturnierGui extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
+
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -899,7 +1156,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(JassturnierGui.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+   
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new JassturnierGui().setVisible(true);
@@ -976,40 +1233,38 @@ public class JassturnierGui extends javax.swing.JFrame {
     private void setUpPlayerTableWizzardDialog(boolean clean) {
         DefaultTableModel modle = (DefaultTableModel) playerTable.getModel();
         modle.setRowCount(0);
-        ResultSet nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
+        ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
         Vector row;
-        try {
-            while (nameSet.next()) {
-                row = new Vector();
-                row.add(nameSet.getInt("ID"));
-                row.add(nameSet.getString("Nachname"));
-                row.add(nameSet.getString("Vorname"));
-                modle.addRow(row);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+        for(Map m : nameSet){
+            row = new Vector();
+            row.add((Integer) m.get("ID"));
+            row.add((String) m.get("NACHNAME"));
+            row.add((String) m.get("VORNAME"));
+            modle.addRow(row);
         }
         if (clean) {
             modle = (DefaultTableModel) turnierPlayerTable.getModel();
             modle.setRowCount(0);
         }
     }
+    
+    private TableCellRenderer getLeftAlignmentCellRenderer(){
+        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
+        leftRenderer.setHorizontalAlignment( JLabel.LEFT );
+        return leftRenderer;
+    };
 
     private void setUpPlayerTableChangeDialog() {
         DefaultTableModel modle = (DefaultTableModel) playerTableChange.getModel();
         modle.setRowCount(0);
-        ResultSet nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
+        ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
         Vector row;
-        try {
-            while (nameSet.next()) {
-                row = new Vector();
-                row.add(nameSet.getInt("ID"));
-                row.add(nameSet.getString("Nachname"));
-                row.add(nameSet.getString("Vorname"));
-                modle.addRow(row);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+        for(Map m : nameSet){
+            row = new Vector();
+            row.add((Integer) m.get("ID"));
+            row.add((String) m.get("NACHNAME"));
+            row.add((String) m.get("VORNAME"));
+            modle.addRow(row);
         }
         modle = (DefaultTableModel) turnierPlayerTableChange.getModel();
         modle.setRowCount(0);
@@ -1070,38 +1325,30 @@ public class JassturnierGui extends javax.swing.JFrame {
         DefaultTableModel modle = (DefaultTableModel) rankingTable.getModel();
         modle.setRowCount(0);
         if (controller.getActTurnier().getGaenge().isEmpty()) {
-            ResultSet result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
             Vector row;
             int rang = 1;
-            try {
-                while (result.next()) {
-                    row = new Vector();
-                    row.add(rang);
-                    row.add(result.getString("s.Vorname"));
-                    row.add(result.getString("s.Nachname"));
-                    row.add(0);
-                    modle.addRow(row);
-                    rang += 1;
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+            for(Map m : result){
+                row = new Vector();
+                row.add(rang);
+                row.add((String) m.get("VORNAME"));
+                row.add((String) m.get("NACHNAME"));
+                row.add(0);
+                modle.addRow(row);
+                rang += 1;
             }
         } else {
-            ResultSet result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().numberOfGaenge());
+            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().numberOfGaenge());
             Vector row;
             int rang = 1;
-            try {
-                while (result.next()) {
+            for(Map m : result){
                     row = new Vector();
                     row.add(rang);
-                    row.add(result.getString("Vorname"));
-                    row.add(result.getString("Nachname"));
-                    row.add(result.getInt("sum(t.Punkte)"));
+                    row.add((String) m.get("VORNAME"));
+                    row.add((String) m.get("NACHNAME"));
+                    row.add((Long) m.get("SUM(T.PUNKTE)"));
                     modle.addRow(row);
                     rang += 1;
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -1167,14 +1414,10 @@ public class JassturnierGui extends javax.swing.JFrame {
                     header += " Schlussrangliste";
                     path += String.valueOf(controller.getActTurnier().getJahr()) + "_Schlussrangliste.pdf";
                 }
-                ResultSet result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), gangNr);
-                try {
-                    while (result.next()) {
-                        names.add(result.getString("Vorname") + " " + result.getString("Nachname"));
-                        points.add(String.valueOf(result.getInt("sum(t.Punkte)")));
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), gangNr);
+                for(Map m : result){
+                    names.add((String) m.get("VORNAME") + " " + (String) m.get("NACHNAME"));
+                    points.add(String.valueOf((Long) m.get("SUM(T.PUNKTE)")));
                 }
                 new RankingPDF(names, points, header).createPdf(path);
                 JOptionPane.showMessageDialog(this, "Die Rangliste wurde exportiert.");
@@ -1188,18 +1431,14 @@ public class JassturnierGui extends javax.swing.JFrame {
     private void setUpTurnierOverview() {
         DefaultTableModel modle = (DefaultTableModel) turnierOverviewTable.getModel();
         modle.setRowCount(0);
-        ResultSet nameSet = SQLQuerryExecutor.getValuesFromTable("turnier");
+        ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("turnier");
         Vector row;
-        try {
-            while (nameSet.next()) {
-                row = new Vector();
-                row.add(nameSet.getInt("ID"));
-                row.add(nameSet.getInt("Jahr"));
-                row.add(nameSet.getInt("anzahlTische"));
-                modle.addRow(row);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+        for(Map m : nameSet){
+            row = new Vector();
+            row.add((Integer) m.get("ID"));
+            row.add((Integer) m.get("JAHR"));
+            row.add((Integer) m.get("ANZAHLTISCHE"));
+            modle.addRow(row);
         }
     }
 
@@ -1207,20 +1446,15 @@ public class JassturnierGui extends javax.swing.JFrame {
         if (controller.getActTurnier() != null) {
             DefaultTableModel modle = (DefaultTableModel) changeNameTable.getModel();
             modle.setRowCount(0);
-            ResultSet nameSet = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+            ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
             Vector row;
-            try {
-                while (nameSet.next()) {
-                    row = new Vector();
-                    row.add(nameSet.getInt("ID"));
-                    row.add(nameSet.getString("Nachname"));
-                    row.add(nameSet.getString("Vorname"));
-                    modle.addRow(row);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+            for(Map m : nameSet){
+                row = new Vector();
+                row.add((Integer) m.get("ID"));
+                row.add((String) m.get("NACHNAME"));
+                row.add((String) m.get("VORNAME"));
+                modle.addRow(row);
             }
-
         }
     }
 
