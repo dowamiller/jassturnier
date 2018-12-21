@@ -4,6 +4,7 @@
 ### NetBeans ###
 nbproject/private/
 build/
+lib/
 nbbuild/
 dist/
 data/
