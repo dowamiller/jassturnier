@@ -32,8 +32,6 @@ public class SQLDriver {
 
     private static SQLDriver instance = null;
     private String url;
-    private String user;
-    private String password;
     private JassturnierGui gui;
 
     public void setGui(JassturnierGui gui) {
@@ -41,9 +39,7 @@ public class SQLDriver {
     }
 
     private SQLDriver() {
-        url = readProperties()[0] + "Jassturnier";
-        user = readProperties()[1];
-        password =  readProperties()[2];
+        url = ResourceLoader.readProperty("DB") + ResourceLoader.readProperty("DBPATH")  + "/Jassturnier";
         setUpTablesIfNecessairy();
         insertNamesIfNecessairy();
     }
@@ -54,17 +50,12 @@ public class SQLDriver {
         }
         return instance;
     }
-
-//    public final boolean connect(String url, String user, String password) {
-//        boolean faild = true;
-//        try {
-//            connection = DriverManager.getConnection(url+ "heroku_1231147e1ab43d6?reconnect=true", user, password);
-//            faild = false;
-//        } catch (SQLException e) {
-//            Logger.getLogger(SQLDriver.class.getName()).log(Level.SEVERE, null, e);
-//        }
-//        return faild;
-//    }
+    
+    public final void setDataBasePath(String newDBPath) {
+        url = ResourceLoader.readProperty("DB") + newDBPath + "/Jassturnier";
+        setUpTablesIfNecessairy();
+        insertNamesIfNecessairy();
+    }
 
     public final ArrayList<Map<String, Object>> executeQuerry(String querry) {
         ResultSet result = null;
@@ -149,46 +140,6 @@ public class SQLDriver {
         return result;
     }
 
-    /**
-     * Reads Properties from the propertie File
-     */
-    private static String[] readProperties() {
-        String[] result = new String[3];
-        Properties prop = new Properties();
-        String fileName = "app.config";
-        try {
-            InputStream stream = new FileInputStream(fileName);
-            prop.load(stream);
-            result[0] = prop.getProperty("MySQLServerUrl");
-            result[1] = prop.getProperty("User");
-            result[2] = prop.getProperty("Password");
-        } catch (FileNotFoundException ex) {
-            System.out.println("File app.config not found");
-        } catch (IOException ex) {
-            System.out.println("Unable to open File app.config ");
-        }
-        return result;
-    }
-
-    public static String[] readPlaces() {
-        String[] places = new String[4];
-        Properties prop = new Properties();
-        String fileName = "app.config";
-        try {
-            InputStream stream = new FileInputStream(fileName);
-            prop.load(stream);
-            places[0] = prop.getProperty("Place1");
-            places[1] = prop.getProperty("Place2");
-            places[2] = prop.getProperty("Place3");
-            places[3] = prop.getProperty("Place4");
-        } catch (FileNotFoundException ex) {
-            System.out.println("File app.config not found");
-        } catch (IOException ex) {
-            System.out.println("Unable to open File app.config ");
-        }
-        return places;
-    }
-    
     private void setUpTablesIfNecessairy() {
         ArrayList<String> createQuerrys = readCreateQuerrys();
         createQuerrys.forEach((s) -> {

@@ -5,33 +5,42 @@
  */
 package ch.dowa.jassturnier.view;
 
+import ch.dowa.jassturnier.ResourceLoader;
 import ch.dowa.jassturnier.control.TurnierController;
 import ch.dowa.jassturnier.database.SQLQuerryExecutor;
 import ch.dowa.jassturnier.objectModel.Gang;
 import ch.dowa.jassturnier.objectModel.Spiel;
 import ch.dowa.jassturnier.objectModel.Spieler;
 import ch.dowa.jassturnier.objectModel.Turnier;
-import ch.dowa.jassturnier.pdf.MappingPDF;
-import ch.dowa.jassturnier.pdf.PlayerListPDF;
-import ch.dowa.jassturnier.pdf.RankingPDF;
-import com.itextpdf.text.DocumentException;
+import ch.dowa.jassturnier.pdf.PlaceMappingPdf;
+import ch.dowa.jassturnier.pdf.PlayerListPdf;
+import ch.dowa.jassturnier.pdf.RankingPdf;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -41,6 +50,7 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     TurnierController controller;
     javax.swing.JTable[] gangTables;
+    BufferedImage image;
 
     /**
      * Creates new form JassturnierGui
@@ -48,8 +58,16 @@ public class JassturnierGui extends javax.swing.JFrame {
     public JassturnierGui() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
-        addMouseListener(playerTable, turnierPlayerTable, numberOfTablesLabel, additionalPlayerLable);
-        addMouseListener(playerTableChange, turnierPlayerTableChange, numberOfTablesLabelChange, additionalPlayerLableChange);
+        turnierOverviewTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                if (me.getClickCount() == 2) {
+                    loadTurnier.doClick();
+                }
+            }
+        });
+        addMouseListenerPlayerTables(playerTable, turnierPlayerTable, numberOfTablesLabel, additionalPlayerLable);
+        addMouseListenerPlayerTables(playerTableChange, turnierPlayerTableChange, numberOfTablesLabelChange, additionalPlayerLableChange);
         gangTables = new JTable[4];
         gangTables[0] = tableGang1;
         gangTables[1] = tableGang2;
@@ -64,6 +82,13 @@ public class JassturnierGui extends javax.swing.JFrame {
             jT.getModel().addTableModelListener(new gangTableModelListener());
         }
         changeNameTable.getModel().addTableModelListener(new changeNameTableModelListener());
+        if(controller.getvLogoPath() != null){
+            try {
+                image = ImageIO.read(new File(controller.getvLogoPath()));
+            } catch (IOException ex) {
+                image = null;
+            }
+        }
     }
 
     /**
@@ -119,6 +144,32 @@ public class JassturnierGui extends javax.swing.JFrame {
         changeNameDialog = new javax.swing.JDialog();
         jScrollPane7 = new javax.swing.JScrollPane();
         changeNameTable = new javax.swing.JTable();
+        changePropertiesDialog = new javax.swing.JDialog();
+        jLabel8 = new javax.swing.JLabel();
+        dbPathTextField = new javax.swing.JTextField();
+        searchvLogoPathButton = new javax.swing.JButton();
+        jLabel13 = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jPanel1 = new javax.swing.JPanel();
+        place1TextField = new javax.swing.JTextField();
+        place2TextField = new javax.swing.JTextField();
+        place4TextField = new javax.swing.JTextField();
+        place3TextField = new javax.swing.JTextField();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel15 = new javax.swing.JLabel();
+        jSeparator3 = new javax.swing.JSeparator();
+        jLabel14 = new javax.swing.JLabel();
+        vNameTextField = new javax.swing.JTextField();
+        jSeparator4 = new javax.swing.JSeparator();
+        jLabel16 = new javax.swing.JLabel();
+        searchDbPathButton = new javax.swing.JButton();
+        vLogoPathTextField = new javax.swing.JTextField();
+        vLogoPanel = new javax.swing.JPanel();
+        imageLabel = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        cancelButton = new javax.swing.JButton();
+        savePropertiesButton = new javax.swing.JButton();
+        pathChooser = new javax.swing.JFileChooser();
         tabGang = new javax.swing.JTabbedPane();
         scrollGang1 = new javax.swing.JScrollPane();
         tableGang1 = new javax.swing.JTable();
@@ -133,6 +184,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         menuBar = new javax.swing.JMenuBar();
         menuTournament = new javax.swing.JMenu();
         turnierOverviewItem = new javax.swing.JMenuItem();
+        closeTurnierItem = new javax.swing.JMenuItem();
         changePlayerListItem = new javax.swing.JMenuItem();
         changeNamesItem = new javax.swing.JMenuItem();
         newRoundItem = new javax.swing.JMenuItem();
@@ -140,8 +192,13 @@ public class JassturnierGui extends javax.swing.JFrame {
         exportPlayerItem = new javax.swing.JMenuItem();
         exportRankintItem = new javax.swing.JMenuItem();
         exportPlaceMappingItem = new javax.swing.JMenuItem();
+        menuSettings = new javax.swing.JMenu();
+        changePropertiesItem = new javax.swing.JMenuItem();
 
-        turnierWizzardDialog.setSize(new java.awt.Dimension(2000, 1000));
+        turnierWizzardDialog.setTitle("Turnier erstellen");
+        turnierWizzardDialog.setAlwaysOnTop(true);
+        turnierWizzardDialog.setModal(true);
+        turnierWizzardDialog.setSize(new java.awt.Dimension(2400, 1200));
         java.awt.GridBagLayout turnierWizzardDialogLayout = new java.awt.GridBagLayout();
         turnierWizzardDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0};
         turnierWizzardDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
@@ -339,7 +396,15 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         turnierWizzardDialog.getContentPane().add(additionalPlayerLable, gridBagConstraints);
 
+        addPlayerDialog.setTitle("Spieler hinzufügen");
+        addPlayerDialog.setAlwaysOnTop(true);
+        addPlayerDialog.setModal(true);
         addPlayerDialog.setSize(new java.awt.Dimension(400, 200));
+        addPlayerDialog.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                addPlayerDialogPropertyChange(evt);
+            }
+        });
         java.awt.GridBagLayout addPlayerDialogLayout = new java.awt.GridBagLayout();
         addPlayerDialogLayout.columnWidths = new int[] {0, 5, 0};
         addPlayerDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0};
@@ -393,7 +458,10 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         addPlayerDialog.getContentPane().add(addButton, gridBagConstraints);
 
-        turnierOverviewDialog.setSize(new java.awt.Dimension(720, 520));
+        turnierOverviewDialog.setTitle("Turnier Übersicht");
+        turnierOverviewDialog.setAlwaysOnTop(true);
+        turnierOverviewDialog.setModal(true);
+        turnierOverviewDialog.setSize(new java.awt.Dimension(2400, 1200));
         java.awt.GridBagLayout turnierOverviewDialogLayout = new java.awt.GridBagLayout();
         turnierOverviewDialogLayout.columnWidths = new int[] {0, 5, 0};
         turnierOverviewDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
@@ -427,6 +495,11 @@ public class JassturnierGui extends javax.swing.JFrame {
         turnierOverviewTable.setRowMargin(3);
         turnierOverviewTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane4.setViewportView(turnierOverviewTable);
+        if (turnierOverviewTable.getColumnModel().getColumnCount() > 0) {
+            turnierOverviewTable.getColumnModel().getColumn(0).setCellRenderer(getLeftAlignmentCellRenderer());
+            turnierOverviewTable.getColumnModel().getColumn(1).setCellRenderer(getLeftAlignmentCellRenderer());
+            turnierOverviewTable.getColumnModel().getColumn(2).setCellRenderer(getLeftAlignmentCellRenderer());
+        }
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -479,7 +552,10 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         turnierOverviewDialog.getContentPane().add(deleteTurnier, gridBagConstraints);
 
-        changePlayerListDialog.setSize(new java.awt.Dimension(2000, 1000));
+        changePlayerListDialog.setTitle("Spielerliste ändern");
+        changePlayerListDialog.setAlwaysOnTop(true);
+        changePlayerListDialog.setModal(true);
+        changePlayerListDialog.setSize(new java.awt.Dimension(2400, 1200));
         java.awt.GridBagLayout changePlayerListDialogLayout = new java.awt.GridBagLayout();
         changePlayerListDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0};
         changePlayerListDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
@@ -618,7 +694,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         addPlayerButtonChange.setText("Spieler hinzufügen");
         addPlayerButtonChange.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addPlayerButtonChangeActionPerformed(evt);
+                addPlayerButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -658,8 +734,14 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         changePlayerListDialog.getContentPane().add(additionalPlayerLableChange, gridBagConstraints);
 
+        changeNameDialog.setTitle("Spielernamen ändern");
+        changeNameDialog.setAlwaysOnTop(true);
+        changeNameDialog.setModal(true);
         changeNameDialog.setSize(new java.awt.Dimension(500, 1000));
-        changeNameDialog.getContentPane().setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagLayout changeNameDialogLayout = new java.awt.GridBagLayout();
+        changeNameDialogLayout.columnWidths = new int[] {0};
+        changeNameDialogLayout.rowHeights = new int[] {0};
+        changeNameDialog.getContentPane().setLayout(changeNameDialogLayout);
 
         changeNameTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -701,7 +783,256 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.weighty = 1.0;
         changeNameDialog.getContentPane().add(jScrollPane7, gridBagConstraints);
 
+        changePropertiesDialog.setTitle("Einstellungen ändern");
+        changePropertiesDialog.setAlwaysOnTop(true);
+        changePropertiesDialog.setMinimumSize(new java.awt.Dimension(800, 1050));
+        changePropertiesDialog.setModal(true);
+        changePropertiesDialog.setResizable(false);
+        changePropertiesDialog.setSize(new java.awt.Dimension(800, 1050));
+        java.awt.GridBagLayout changePropertiesDialogLayout = new java.awt.GridBagLayout();
+        changePropertiesDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0};
+        changePropertiesDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
+        changePropertiesDialog.getContentPane().setLayout(changePropertiesDialogLayout);
+
+        jLabel8.setText("Speicherpfad:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        changePropertiesDialog.getContentPane().add(jLabel8, gridBagConstraints);
+
+        dbPathTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dbPathTextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        changePropertiesDialog.getContentPane().add(dbPathTextField, gridBagConstraints);
+
+        searchvLogoPathButton.setText("Pfad wählen");
+        searchvLogoPathButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchvLogoPathButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePropertiesDialog.getContentPane().add(searchvLogoPathButton, gridBagConstraints);
+
+        jLabel13.setText("Platzbeschriftung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePropertiesDialog.getContentPane().add(jLabel13, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        changePropertiesDialog.getContentPane().add(jSeparator2, gridBagConstraints);
+
+        jPanel1.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel1.setMinimumSize(new java.awt.Dimension(300, 300));
+        jPanel1.setPreferredSize(new java.awt.Dimension(500, 500));
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        place1TextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        place1TextField.setText("jTextField1");
+        place1TextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                place1TextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(place1TextField, gridBagConstraints);
+
+        place2TextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        place2TextField.setText("jTextField2");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(place2TextField, gridBagConstraints);
+
+        place4TextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        place4TextField.setText("jTextField3");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(place4TextField, gridBagConstraints);
+
+        place3TextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        place3TextField.setText("jTextField4");
+        place3TextField.setMinimumSize(new java.awt.Dimension(30, 30));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(place3TextField, gridBagConstraints);
+
+        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jLabel15.setText("Tisch");
+        jPanel2.add(jLabel15, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel1.add(jPanel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePropertiesDialog.getContentPane().add(jPanel1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        changePropertiesDialog.getContentPane().add(jSeparator3, gridBagConstraints);
+
+        jLabel14.setText("Vereinsname:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePropertiesDialog.getContentPane().add(jLabel14, gridBagConstraints);
+
+        vNameTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vNameTextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePropertiesDialog.getContentPane().add(vNameTextField, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        changePropertiesDialog.getContentPane().add(jSeparator4, gridBagConstraints);
+
+        jLabel16.setText("Vereinslogo:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        changePropertiesDialog.getContentPane().add(jLabel16, gridBagConstraints);
+
+        searchDbPathButton.setText("Pfad wählen");
+        searchDbPathButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchDbPathButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        changePropertiesDialog.getContentPane().add(searchDbPathButton, gridBagConstraints);
+
+        vLogoPathTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vLogoPathTextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePropertiesDialog.getContentPane().add(vLogoPathTextField, gridBagConstraints);
+
+        vLogoPanel.setMinimumSize(new java.awt.Dimension(500, 500));
+        vLogoPanel.setPreferredSize(new java.awt.Dimension(500, 500));
+        vLogoPanel.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
+            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
+            }
+            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
+                jPanelResized(evt);
+            }
+        });
+        vLogoPanel.setLayout(new java.awt.GridBagLayout());
+
+        imageLabel.setText("kein Logo ausgewählt");
+        vLogoPanel.add(imageLabel, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        changePropertiesDialog.getContentPane().add(vLogoPanel, gridBagConstraints);
+
+        jPanel4.setMinimumSize(new java.awt.Dimension(179, 50));
+        jPanel4.setPreferredSize(new java.awt.Dimension(615, 50));
+        jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+
+        cancelButton.setText("Abbrechen");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+        jPanel4.add(cancelButton);
+
+        savePropertiesButton.setText("Speichern");
+        savePropertiesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savePropertiesButtonActionPerformed(evt);
+            }
+        });
+        jPanel4.add(savePropertiesButton);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        changePropertiesDialog.getContentPane().add(jPanel4, gridBagConstraints);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Jassturnier");
         setPreferredSize(new java.awt.Dimension(2400, 1200));
         setSize(new java.awt.Dimension(856, 446));
 
@@ -894,6 +1225,14 @@ public class JassturnierGui extends javax.swing.JFrame {
         });
         menuTournament.add(turnierOverviewItem);
 
+        closeTurnierItem.setText("aktuelles Turnier schliessen");
+        closeTurnierItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeTurnierItemActionPerformed(evt);
+            }
+        });
+        menuTournament.add(closeTurnierItem);
+
         changePlayerListItem.setText("Spielerliste bearbeiten");
         changePlayerListItem.setEnabled(false);
         changePlayerListItem.addActionListener(new java.awt.event.ActionListener() {
@@ -953,6 +1292,18 @@ public class JassturnierGui extends javax.swing.JFrame {
 
         menuBar.add(menuPrint);
 
+        menuSettings.setText("Einstellungen");
+
+        changePropertiesItem.setText("Einstellungen ändern");
+        changePropertiesItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changePropertiesItemActionPerformed(evt);
+            }
+        });
+        menuSettings.add(changePropertiesItem);
+
+        menuBar.add(menuSettings);
+
         setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -966,11 +1317,11 @@ public class JassturnierGui extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabGang, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(jScrollPane2)
+            .addComponent(tabGang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
         );
 
-        setSize(new java.awt.Dimension(872, 510));
+        setSize(new java.awt.Dimension(872, 388));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -995,23 +1346,33 @@ public class JassturnierGui extends javax.swing.JFrame {
     private void addPlayerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPlayerButtonActionPerformed
         preNameTextField.setText("");
         nameTextField.setText("");
+        Object source = evt.getSource();
+        if (evt.getSource() == addPlayerButton){
+            turnierOverviewDialog.setAlwaysOnTop(false);
+        } else if (evt.getSource() == addPlayerButtonChange){
+            changePlayerListDialog.setAlwaysOnTop(false);
+        }
+        addPlayerDialog.repaint();
         addPlayerDialog.setVisible(true);
     }//GEN-LAST:event_addPlayerButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        int id = SQLQuerryExecutor.getLastIDofTable("spieler") + 1;
-        String[] values = {String.valueOf(id), "'" + preNameTextField.getText() + "'", "'" + nameTextField.getText() + "'"};
-        SQLQuerryExecutor.addValuesToTable("spieler", values);
-        setUpPlayerTableWizzardDialog(false);
-        setUpPlayerTableChangeDialog();
-        addPlayerDialog.setVisible(false);
+        if (!preNameTextField.getText().isEmpty() && !nameTextField.getText().isEmpty()) {
+            int id = SQLQuerryExecutor.getLastIDofTable("spieler") + 1;
+            String[] values = {String.valueOf(id), "'" + preNameTextField.getText() + "'", "'" + nameTextField.getText() + "'"};
+            SQLQuerryExecutor.addValuesToTable("spieler", values);
+            setUpPlayerTableWizzardDialog(false);
+            setUpPlayerTableChangeDialog();
+            addPlayerDialog.repaint();
+            addPlayerDialog.setVisible(false);
+        }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void exportRankintItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportRankintItemActionPerformed
         int selectedTabID = tabGang.getSelectedIndex();
         Gang selectedGang = controller.getActTurnier().getGaenge().get(selectedTabID);
-        if(controller.checkGangFinished(selectedGang)){
-          exportRanking(selectedGang.getGangNr());  
+        if (controller.checkGangFinished(selectedGang)) {
+            exportRanking(selectedGang.getGangNr());
         } else {
             JOptionPane.showMessageDialog(this, "Es sind noch nicht alle Spiele des selektierten Ganges gespielt, deshalb kann die Rangliste nicht exportiert werden.");
         }
@@ -1019,6 +1380,7 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     private void turnierOverviewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_turnierOverviewItemActionPerformed
         setUpTurnierOverview();
+        turnierOverviewDialog.repaint();
         turnierOverviewDialog.setVisible(true);
     }//GEN-LAST:event_turnierOverviewItemActionPerformed
 
@@ -1044,8 +1406,9 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     private void newTurnierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTurnierActionPerformed
         setUpPlayerTableWizzardDialog(true);
-        turnierWizzardDialog.setVisible(true);
+        turnierWizzardDialog.repaint();
         turnierOverviewDialog.setVisible(false);
+        turnierWizzardDialog.setVisible(true);
         exportPlayerItem.setEnabled(true);
     }//GEN-LAST:event_newTurnierActionPerformed
 
@@ -1092,42 +1455,136 @@ public class JassturnierGui extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_endChangesActionPerformed
 
-    private void addPlayerButtonChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPlayerButtonChangeActionPerformed
-        preNameTextField.setText("");
-        nameTextField.setText("");
-        addPlayerDialog.setVisible(true);
-    }//GEN-LAST:event_addPlayerButtonChangeActionPerformed
-
     private void changePlayerListItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changePlayerListItemActionPerformed
         setUpPlayerTableChangeDialog();
+        changePlayerListDialog.repaint();
         changePlayerListDialog.setVisible(true);
     }//GEN-LAST:event_changePlayerListItemActionPerformed
 
     private void changeNamesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeNamesItemActionPerformed
         setUpChangeNameTable();
+        changeNameDialog.repaint();
         changeNameDialog.setVisible(true);
     }//GEN-LAST:event_changeNamesItemActionPerformed
 
     private void exportPlayerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportPlayerItemActionPerformed
-        ArrayList<String> names = new ArrayList<>();
-        String header = "STV-Schenkon Jassturnier " + String.valueOf(controller.getActTurnier().getJahr()) + " Spielerliste";
-        String path = "Jassturnier_" + String.valueOf(controller.getActTurnier().getJahr()) + "_Spielerliste.pdf";
-        ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
-        for( Map m : result){
-            String name = (String) m.get("NACHNAME") + " " + (String) m.get("VORNAME");
-            names.add(name);
-        }
-        try {
-            new PlayerListPDF(names, header).createPdf(path);
-            JOptionPane.showMessageDialog(this, "Die Spielerliste wurde exportier.");
-        } catch (IOException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Die Spielerliste konnte nicht exportiert werden.");
-        } catch (DocumentException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Die Spielerliste konnte nicht exportiert werden.");
-        }
+
+    ArrayList<String> names = new ArrayList<>();
+    ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+    for (Map m : result) {
+        String name = (String) m.get("NACHNAME") + " " + (String) m.get("VORNAME");
+        names.add(name);
+    }
+    try {
+        PlayerListPdf.exportPlayerList(names,String.valueOf(controller.getActTurnier().getJahr()));
+        JOptionPane.showMessageDialog(this, "Die Spielerliste wurde exportier.");
+    } catch (IOException ex) {
+        Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(this, "Die Spielerliste konnte nicht exportiert werden.");
+    }
+
     }//GEN-LAST:event_exportPlayerItemActionPerformed
+
+    private void dbPathTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dbPathTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dbPathTextFieldActionPerformed
+
+    private void vNameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vNameTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_vNameTextFieldActionPerformed
+
+    private void changePropertiesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changePropertiesItemActionPerformed
+        setUpPropertiesDialog();
+        changePropertiesDialog.repaint();
+        changePropertiesDialog.setVisible(true);
+    }//GEN-LAST:event_changePropertiesItemActionPerformed
+
+    private void savePropertiesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePropertiesButtonActionPerformed
+        Properties props = ResourceLoader.readProperties();
+        String newDbPath = dbPathTextField.getText();
+        if (!props.getProperty("DBPATH").equals(newDbPath)) {
+            try {
+                controller.changeDbPath(newDbPath);
+            } catch (Exception ex) {
+                changePropertiesDialog.setAlwaysOnTop(false);
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+                changePropertiesDialog.setAlwaysOnTop(true);
+                dbPathTextField.setText(props.getProperty("DBPATH"));
+                Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+        }
+        props.setProperty("DBPATH", newDbPath);
+        props.setProperty("PLACE4", place4TextField.getText());
+        props.setProperty("PLACE3", place3TextField.getText());
+        props.setProperty("PLACE2", place2TextField.getText());
+        props.setProperty("PLACE1", place1TextField.getText());
+        props.setProperty("VNAME", vNameTextField.getText());
+        props.setProperty("LOGOPATH", image != null ? vLogoPathTextField.getText() : "");
+        ResourceLoader.writeProperties(props);
+        controller.setvLogoPath(image != null ? vLogoPathTextField.getText() : null);
+        controller.setvName(!vNameTextField.getText().isEmpty() ? vNameTextField.getText() : null);
+        changePropertiesDialog.setVisible(false);
+    }//GEN-LAST:event_savePropertiesButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        changePropertiesDialog.setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void place1TextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_place1TextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_place1TextFieldActionPerformed
+
+    private void searchDbPathButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchDbPathButtonActionPerformed
+        changePropertiesDialog.setAlwaysOnTop(false);
+        pathChooser.setDialogTitle("Datenbankpfad auswählen");
+        pathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (pathChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            dbPathTextField.setText(pathChooser.getSelectedFile().getPath());
+        }
+        changePropertiesDialog.setAlwaysOnTop(true);
+
+
+    }//GEN-LAST:event_searchDbPathButtonActionPerformed
+
+    private void closeTurnierItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeTurnierItemActionPerformed
+        controller.setActTurnier(null);
+        cleanGameTable();
+        refreshRankingTable();
+    }//GEN-LAST:event_closeTurnierItemActionPerformed
+
+    private void searchvLogoPathButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchvLogoPathButtonActionPerformed
+        changePropertiesDialog.setAlwaysOnTop(false);
+        pathChooser.setDialogTitle("Vereinslogo auswählen");
+        pathChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        pathChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
+        pathChooser.setAcceptAllFileFilterUsed(false);
+        if (pathChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            vLogoPathTextField.setText(pathChooser.getSelectedFile().getPath());
+            vLogoPathTextField.postActionEvent();
+        }
+        pathChooser.setAcceptAllFileFilterUsed(true);
+        pathChooser.resetChoosableFileFilters();
+        changePropertiesDialog.setAlwaysOnTop(true);
+    }//GEN-LAST:event_searchvLogoPathButtonActionPerformed
+
+    private void jPanelResized(java.awt.event.HierarchyEvent evt) {//GEN-FIRST:event_jPanelResized
+       //imageLabel.setSize(vLogoPanel.getSize());
+    }//GEN-LAST:event_jPanelResized
+
+    private void vLogoPathTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vLogoPathTextFieldActionPerformed
+       System.out.println();
+            try {
+                image = ImageIO.read(new File(evt.getActionCommand()));
+            } catch (IOException ex) {
+                image = null;
+            }
+            showLogoInChangePropertiesDialog();
+    }//GEN-LAST:event_vLogoPathTextFieldActionPerformed
+
+    private void addPlayerDialogPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_addPlayerDialogPropertyChange
+        System.out.println(evt);
+    }//GEN-LAST:event_addPlayerDialogPropertyChange
 
     /**
      * @param args the command line arguments
@@ -1156,7 +1613,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(JassturnierGui.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-   
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new JassturnierGui().setVisible(true);
@@ -1170,27 +1627,41 @@ public class JassturnierGui extends javax.swing.JFrame {
     private javax.swing.JDialog addPlayerDialog;
     private javax.swing.JLabel additionalPlayerLable;
     private javax.swing.JLabel additionalPlayerLableChange;
+    private javax.swing.JButton cancelButton;
     private javax.swing.JDialog changeNameDialog;
     private javax.swing.JTable changeNameTable;
     private javax.swing.JMenuItem changeNamesItem;
     private javax.swing.JDialog changePlayerListDialog;
     private javax.swing.JMenuItem changePlayerListItem;
+    private javax.swing.JDialog changePropertiesDialog;
+    private javax.swing.JMenuItem changePropertiesItem;
+    private javax.swing.JMenuItem closeTurnierItem;
+    private javax.swing.JTextField dbPathTextField;
     private javax.swing.JButton deleteTurnier;
     private javax.swing.JButton endChanges;
     private javax.swing.JMenuItem exportPlaceMappingItem;
     private javax.swing.JMenuItem exportPlayerItem;
     private javax.swing.JMenuItem exportRankintItem;
+    private javax.swing.JLabel imageLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1198,23 +1669,35 @@ public class JassturnierGui extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
     private javax.swing.JButton loadTurnier;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuPrint;
+    private javax.swing.JMenu menuSettings;
     private javax.swing.JMenu menuTournament;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JMenuItem newRoundItem;
     private javax.swing.JButton newTurnier;
     private javax.swing.JLabel numberOfTablesLabel;
     private javax.swing.JLabel numberOfTablesLabelChange;
+    private javax.swing.JFileChooser pathChooser;
+    private javax.swing.JTextField place1TextField;
+    private javax.swing.JTextField place2TextField;
+    private javax.swing.JTextField place3TextField;
+    private javax.swing.JTextField place4TextField;
     private javax.swing.JTable playerTable;
     private javax.swing.JTable playerTableChange;
     private javax.swing.JTextField preNameTextField;
     private javax.swing.JTable rankingTable;
+    private javax.swing.JButton savePropertiesButton;
     private javax.swing.JScrollPane scrollGang1;
     private javax.swing.JScrollPane scrollGang2;
     private javax.swing.JScrollPane scrollGang3;
     private javax.swing.JScrollPane scrollGang4;
+    private javax.swing.JButton searchDbPathButton;
+    private javax.swing.JButton searchvLogoPathButton;
     private javax.swing.JButton startTurnier;
     private javax.swing.JTabbedPane tabGang;
     private javax.swing.JTable tableGang1;
@@ -1227,57 +1710,65 @@ public class JassturnierGui extends javax.swing.JFrame {
     private javax.swing.JTable turnierPlayerTable;
     private javax.swing.JTable turnierPlayerTableChange;
     private javax.swing.JDialog turnierWizzardDialog;
+    private javax.swing.JPanel vLogoPanel;
+    private javax.swing.JTextField vLogoPathTextField;
+    private javax.swing.JTextField vNameTextField;
     private javax.swing.JSpinner yearSpinner;
     // End of variables declaration//GEN-END:variables
 
     private void setUpPlayerTableWizzardDialog(boolean clean) {
-        DefaultTableModel modle = (DefaultTableModel) playerTable.getModel();
-        modle.setRowCount(0);
+        DefaultTableModel modlePlayerTable = (DefaultTableModel) playerTable.getModel();
+        modlePlayerTable.setRowCount(0);
         ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
         Vector row;
-        for(Map m : nameSet){
+        for (Map m : nameSet) {
             row = new Vector();
             row.add((Integer) m.get("ID"));
             row.add((String) m.get("NACHNAME"));
             row.add((String) m.get("VORNAME"));
-            modle.addRow(row);
+            modlePlayerTable.addRow(row);
         }
         if (clean) {
-            modle = (DefaultTableModel) turnierPlayerTable.getModel();
-            modle.setRowCount(0);
+            modlePlayerTable = (DefaultTableModel) turnierPlayerTable.getModel();
+            modlePlayerTable.setRowCount(0);
         }
     }
-    
-    private TableCellRenderer getLeftAlignmentCellRenderer(){
+
+    private TableCellRenderer getLeftAlignmentCellRenderer() {
         DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setHorizontalAlignment( JLabel.LEFT );
+        leftRenderer.setHorizontalAlignment(JLabel.LEFT);
         return leftRenderer;
-    };
+    }
 
     private void setUpPlayerTableChangeDialog() {
-        DefaultTableModel modle = (DefaultTableModel) playerTableChange.getModel();
-        modle.setRowCount(0);
+        DefaultTableModel modleTurnierPlayerTable = (DefaultTableModel) playerTableChange.getModel();
+        modleTurnierPlayerTable.setRowCount(0);
         ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("spieler");
         Vector row;
-        for(Map m : nameSet){
+        for (Map m : nameSet) {
             row = new Vector();
             row.add((Integer) m.get("ID"));
             row.add((String) m.get("NACHNAME"));
             row.add((String) m.get("VORNAME"));
-            modle.addRow(row);
+            modleTurnierPlayerTable.addRow(row);
         }
-        modle = (DefaultTableModel) turnierPlayerTableChange.getModel();
-        modle.setRowCount(0);
-        for (Spieler s : controller.getActTurnier().getSpieler()) {
-            row = new Vector();
-            row.add(s.getId());
-            row.add(s.getNachname());
-            row.add(s.getVorname());
-            modle.addRow(row);
+        modleTurnierPlayerTable = (DefaultTableModel) turnierPlayerTableChange.getModel();
+        modleTurnierPlayerTable.setRowCount(0);
+        if (controller.getActTurnier() != null) {
+            for (Spieler s : controller.getActTurnier().getSpieler()) {
+                row = new Vector();
+                row.add(s.getId());
+                row.add(s.getNachname());
+                row.add(s.getVorname());
+                modleTurnierPlayerTable.addRow(row);
+            }
         }
+        int nRows = modleTurnierPlayerTable.getRowCount();
+        numberOfTablesLabelChange.setText(String.valueOf(nRows / 4));
+        additionalPlayerLableChange.setText(String.valueOf(nRows % 4));
     }
 
-    private void addMouseListener(JTable pt, JTable tpt, JLabel ntl, JLabel apl) {
+    private void addMouseListenerPlayerTables(JTable pt, JTable tpt, JLabel ntl, JLabel apl) {
         pt.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
@@ -1324,24 +1815,25 @@ public class JassturnierGui extends javax.swing.JFrame {
     public void refreshRankingTable() {
         DefaultTableModel modle = (DefaultTableModel) rankingTable.getModel();
         modle.setRowCount(0);
-        if (controller.getActTurnier().getGaenge().isEmpty()) {
-            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
-            Vector row;
-            int rang = 1;
-            for(Map m : result){
-                row = new Vector();
-                row.add(rang);
-                row.add((String) m.get("VORNAME"));
-                row.add((String) m.get("NACHNAME"));
-                row.add(0);
-                modle.addRow(row);
-                rang += 1;
-            }
-        } else {
-            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().numberOfGaenge());
-            Vector row;
-            int rang = 1;
-            for(Map m : result){
+        if (controller.getActTurnier() != null) {
+            if (controller.getActTurnier().getGaenge().isEmpty()) {
+                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+                Vector row;
+                int rang = 1;
+                for (Map m : result) {
+                    row = new Vector();
+                    row.add(rang);
+                    row.add((String) m.get("VORNAME"));
+                    row.add((String) m.get("NACHNAME"));
+                    row.add(0);
+                    modle.addRow(row);
+                    rang += 1;
+                }
+            } else {
+                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().numberOfGaenge(),false);
+                Vector row;
+                int rang = 1;
+                for (Map m : result) {
                     row = new Vector();
                     row.add(rang);
                     row.add((String) m.get("VORNAME"));
@@ -1349,6 +1841,7 @@ public class JassturnierGui extends javax.swing.JFrame {
                     row.add((Long) m.get("SUM(T.PUNKTE)"));
                     modle.addRow(row);
                     rang += 1;
+                }
             }
         }
 
@@ -1401,27 +1894,30 @@ public class JassturnierGui extends javax.swing.JFrame {
     }
 
     private void exportRanking(int gangNr) {
+        ArrayList<Long> pointList;
+        HashMap<Integer, ArrayList<Long>> points = new HashMap<>();
+        HashMap<Integer, String> names = new HashMap<>();
+        for (int gangIndex = 1; gangIndex <= gangNr; gangIndex++) {
+            ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), gangIndex, true);
+            for (int i = 0; i < result.size(); i++) {
+                Map<String, Object> m = result.get(i);
+                if (gangIndex == 1){
+                    names.put(i, (String) m.get("VORNAME") + " " + (String) m.get("NACHNAME"));
+                    pointList = new ArrayList<>();
+                    pointList.add((Long) m.get("SUM(T.PUNKTE)"));
+                    points.put(i, pointList);
+                } else {
+                    pointList = points.get(i);
+                    pointList.add((Long) m.get("SUM(T.PUNKTE)"));
+                    points.put(i, pointList);
+                }
+            }
+        }
         if (controller.getActTurnier().numberOfPlayers() >= 1) {
             try {
-                String header = "STV-Schenkon Jassturnier " + String.valueOf(controller.getActTurnier().getJahr());
-                String path = "Jassturnier_";
-                ArrayList<String> names = new ArrayList();
-                ArrayList<String> points = new ArrayList();
-                if (gangNr > 0 && gangNr < 4) {
-                    header += " Zwischenrangliste " + String.valueOf(gangNr) + ". Gang";
-                    path += String.valueOf(controller.getActTurnier().getJahr()) + "_Zwischenrangliste_Gang" + String.valueOf(gangNr) + ".pdf";
-                } else if (gangNr == 4) {
-                    header += " Schlussrangliste";
-                    path += String.valueOf(controller.getActTurnier().getJahr()) + "_Schlussrangliste.pdf";
-                }
-                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), gangNr);
-                for(Map m : result){
-                    names.add((String) m.get("VORNAME") + " " + (String) m.get("NACHNAME"));
-                    points.add(String.valueOf((Long) m.get("SUM(T.PUNKTE)")));
-                }
-                new RankingPDF(names, points, header).createPdf(path);
+                RankingPdf.exportRanking(names, points, gangNr, String.valueOf(controller.getActTurnier().getJahr()));
                 JOptionPane.showMessageDialog(this, "Die Rangliste wurde exportiert.");
-            } catch (IOException | DocumentException ex) {
+            } catch (IOException ex) {
                 Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(this, "Die Rangliste konnte nicht exportiert werden.");
             }
@@ -1433,7 +1929,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         modle.setRowCount(0);
         ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getValuesFromTable("turnier");
         Vector row;
-        for(Map m : nameSet){
+        for (Map m : nameSet) {
             row = new Vector();
             row.add((Integer) m.get("ID"));
             row.add((Integer) m.get("JAHR"));
@@ -1448,7 +1944,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             modle.setRowCount(0);
             ArrayList<Map<String, Object>> nameSet = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
             Vector row;
-            for(Map m : nameSet){
+            for (Map m : nameSet) {
                 row = new Vector();
                 row.add((Integer) m.get("ID"));
                 row.add((String) m.get("NACHNAME"));
@@ -1467,21 +1963,47 @@ public class JassturnierGui extends javax.swing.JFrame {
             return (int) turnierOverviewTable.getModel().getValueAt(rowIndex, 0);
         }
     }
-
-    private void exportPlaceMapping(int gangNr) {
-        TurnierController.PlaceMappingType mapping = controller.getPlaceMapping(gangNr-1);
-        String header = "STV-Schenkon Jassturnier " + String.valueOf(controller.getActTurnier().getJahr()) + " Platzzuweisung " + String.valueOf(gangNr) + ". Gang";
-        String path = "Jassturnier_" + String.valueOf(controller.getActTurnier().getJahr()) + "_Platzzuweisung_Gang" + String.valueOf(gangNr) + ".pdf";
-        try {
-            new MappingPDF(mapping.getNames(), mapping.getTables(), mapping.getSeats(), header).createPdf(path);
-            JOptionPane.showMessageDialog(this, "Die Platzzuweisung wurde exportiert.");
-        } catch (IOException | DocumentException ex) {
-            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Die Platzzuweisung konnte nicht exportiert werden.");
+    
+    private void showLogoInChangePropertiesDialog() {
+        if (image != null) {
+            imageLabel.setText(null);
+            int maxSize = 500;
+            int h = image.getHeight();
+            int w = image.getWidth();
+            int nh = (h >= w) ? maxSize :  (int)(((float) h / (float) w) * maxSize);
+            int nw = (h<=w) ? maxSize :  (int)(((float) w / (float) h) * maxSize);
+            ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
+            imageLabel.setIcon(imageIcon);
+        } else {
+            imageLabel.setIcon(null);
+            imageLabel.setText("Kein Logo ausgewählt.");
         }
         
     }
 
+    private void exportPlaceMapping(int gangNr) {
+        TurnierController.PlaceMappingType mapping = controller.getPlaceMapping(gangNr - 1);
+        try {
+            PlaceMappingPdf.exportPlaceMapping(mapping, gangNr, String.valueOf(controller.getActTurnier().getJahr()));
+            JOptionPane.showMessageDialog(this, "Die Platzzuweisung wurde exportiert.");
+        } catch (IOException ex) {
+            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Die Platzzuweisung konnte nicht exportiert werden.");
+        }
+
+    }
+
+    private void setUpPropertiesDialog() {
+        vNameTextField.setText(ResourceLoader.readProperty("VNAME"));
+        dbPathTextField.setText(ResourceLoader.readProperty("DBPATH"));
+        place1TextField.setText(ResourceLoader.readProperty("PLACE1"));
+        place2TextField.setText(ResourceLoader.readProperty("PLACE2"));
+        place3TextField.setText(ResourceLoader.readProperty("PLACE3"));
+        place4TextField.setText(ResourceLoader.readProperty("PLACE4"));
+        vLogoPathTextField.setText(ResourceLoader.readProperty("LOGOPATH"));
+        showLogoInChangePropertiesDialog();
+    }
+    
     private class gangTableModelListener implements TableModelListener {
 
         @Override

@@ -162,7 +162,7 @@ public class SQLQuerryExecutor {
         SQLQuerryExecutor.addValuesToTable("spiel", values);
     }
 
-    public final static ArrayList<Map<String, Object>> getRanking(int turnierID, int gangNr) {
+    public final static ArrayList<Map<String, Object>> getRanking(int turnierID, int gangNr, boolean orderById) {
         String querry = "select s.Vorname, s.Nachname, sum(t.Punkte) "
                 + "from spieler s, team t, gang g, turnier tu "
                 + "where (s.ID = t.Spieler1 or s.ID = t.Spieler2) "
@@ -176,8 +176,8 @@ public class SQLQuerryExecutor {
         }
         querry += "and g.turnier = tu.ID "
                 + "and tu.ID = " + String.valueOf(turnierID) + " "
-                + "group by s.ID "
-                + "order by sum(t.punkte) desc";
+                + "group by s.ID ";
+        querry += orderById ? "order by s.ID asc" : "order by sum(t.punkte) desc";
         return SQLDriver.getInstance().executeQuerry(querry);
     }
 
@@ -200,10 +200,6 @@ public class SQLQuerryExecutor {
         String querry = "select s.ID, s.Nachname, s.Vorname from spieler s, nehmenteil n "
                 + "where s.ID = n.Spieler and n.Turnier = " + String.valueOf(turnierID) + " order by s.Nachname asc, s.Vorname";
         return SQLDriver.getInstance().executeQuerry(querry);
-    }
-
-    public static String[] getPlaces() {
-        return SQLDriver.readPlaces();
     }
 
     public final static void deleteTurnier(int turnierID) {

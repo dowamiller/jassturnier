@@ -5,135 +5,64 @@
  */
 package ch.dowa.jassturnier.pdf;
 
-
-import com.itextpdf.text.BaseColor;
-import java.io.FileOutputStream;
+import ch.dowa.jassturnier.ResourceLoader;
+import static ch.dowa.jassturnier.pdf.PdfUtils.*;
+import java.awt.Color;
 import java.io.IOException;
- 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Font.FontFamily;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import java.util.ArrayList;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.vandeseer.easytable.TableDrawer;
+import static org.vandeseer.easytable.settings.HorizontalAlignment.LEFT;
+import org.vandeseer.easytable.structure.Row;
+import org.vandeseer.easytable.structure.Table;
+import org.vandeseer.easytable.structure.cell.CellText;
+
 
 /**
  *
- * @author Dominik
+ * @author domi_
  */
-public class PlayerListPDF {
-      /** The resulting PDF file. */
-    private ArrayList<String> names;
-    private String header;
-    
-    public PlayerListPDF ( ArrayList<String> names, String header){
-        this.names = names;
-        this.header = header;
-    }
-    
-      /**
-     * Creates a PDF with five tables.
-     * @param    filename the name of the PDF file that will be created.
-     * @throws    DocumentException 
-     * @throws    IOException
-     */
-    public void createPdf(String filename)
-        throws IOException, DocumentException {
-    	// step 1
-        Document document = new Document();
-         document.setPageSize(PageSize.A4);
-        // step 2
-        PdfWriter.getInstance(document, new FileOutputStream(filename));
-        // step 3
-        document.open();
-        // step 4
-        document.add(createTable());
-        // step 5
-        document.close();
-    }
- 
-    /**
-     * Creates a table; widths are set with setWidths().
-     * @return a PdfPTable
-     * @throws DocumentException
-     */
-    public PdfPTable createTable() throws DocumentException {
-        // create 6 column table
-        PdfPTable table = new PdfPTable(3);
- 
-        // set the width of the table to 100% of page
-        table.setWidthPercentage(60);
- 
-        // set relative columns width
-        table.setWidths(new float[]{5,1.5f,1.5f});
- 
-        // ----------------Table Header "Title"----------------
-        // font
-        Font font = new Font(FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.WHITE);
-        // create header cell
-        PdfPCell cell = new PdfPCell(new Phrase(header,font));
-        // set Column span "1 cell = 6 cells width"
-        cell.setColspan(3);
-        // set style
-        Style.headerCellStyle(cell);
-        // add to table
-        table.addCell(cell);
-        
-        table.addCell(createLabelCell("Name:"));
-        table.addCell(createLabelCell("Anwesend:"));
-        table.addCell(createLabelCell("Bezahlt:"));
+public class PlayerListPdf {
 
- 
-        //-----------------Table Cells Label/Value------------------
- 
-        for(int i = 0;i<names.size() ;i++){
-            table.addCell(Style.setAlternateRowColor(createNameCell(names.get(i)), i));
-            table.addCell(Style.setAlternateRowColor(createNameCell(" "), i));
-            table.addCell(Style.setAlternateRowColor(createNameCell(" "), i));
+    public static void exportPlayerList(ArrayList<String> playerNames, String year) throws IOException  {
+        String vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
+        String outputFileName;
+        outputFileName =  vName != null ? vName.replace(' ', '_') + "_" : "";
+        outputFileName += "Jassturnier_" + year + "_Spielerliste.pdf";
+        String titel = ((vName != null) ? vName + " " : "") + "Jassturnier " + year + " - Spielerliste";
+
+        final Table.TableBuilder tableBuilder = Table.builder()
+            .addColumnsOfWidth((float)(TABEL_WIDTH * 0.6),(float) (TABEL_WIDTH * 0.2),(float) (TABEL_WIDTH * 0.2))
+            .fontSize(10)
+            .font(STANDART_FONT)
+            .borderColor(Color.WHITE);
+        
+        final Row headerRow = Row.builder()
+                .add(CellText.builder().text("Spieler").horizontalAlignment(LEFT).borderWidth(1).build())
+                .add(CellText.builder().text("anwesend").horizontalAlignment(LEFT).borderWidth(1).build())
+                .add(CellText.builder().text("bezahlt").horizontalAlignment(LEFT).borderWidth(1).build())
+                .backgroundColor(BACKGROUND_HEADER)
+                .textColor(Color.WHITE)
+                .font(STANDART_FONT_BOLD).fontSize(12)
+                .build();
+            
+        tableBuilder.addRow(headerRow);
+        int i = 0;
+        for ( String playerName : playerNames) {
+            tableBuilder.addRow(Row.builder()
+                .add(CellText.builder().text(playerName).horizontalAlignment(LEFT).borderWidth(1).build())
+                .add(CellText.builder().text("").horizontalAlignment(LEFT).borderWidth(1).build())
+                .add(CellText.builder().text("").horizontalAlignment(LEFT).borderWidth(1).build())
+                .backgroundColor(i % 2 == 0 ? BACKGROUND_ROW_EVEN : BACKGROUND_ROW_ODD)
+                .build());
+                i++;
         }
-        return table;
+
+        PdfUtils.exportTemplateWithTable(tableBuilder, outputFileName, titel);
     }
-    
-        private static PdfPCell createLabelCell(String text){
-        // font
-        Font font = new Font(FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
- 
-        // create cell
-        PdfPCell cell = new PdfPCell(new Phrase(text,font));
- 
-        // set style
-        Style.lableCellStyle(cell);
-        return cell;
-    }
-        
-            // create cells
-    private static PdfPCell createNameCell(String text){
-        // font
-        Font font = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
- 
-        // create cell
-        PdfPCell cell = new PdfPCell(new Phrase(text,font));
- 
-        // set style
-        Style.nameCellStyle(cell);
-        return cell;
-    }
-    
-    private static PdfPCell createIntegerCell(String text){
-        // font
-        Font font = new Font(FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.DARK_GRAY);
- 
-        // create cell
-        PdfPCell cell = new PdfPCell(new Phrase(text,font));
- 
-        // set style
-        Style.integerCellStyle(cell);
-        return cell;
-    }
-        
-    
+
 }

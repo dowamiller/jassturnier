@@ -5,6 +5,7 @@
  */
 package ch.dowa.jassturnier.control;
 
+import ch.dowa.jassturnier.ResourceLoader;
 import ch.dowa.jassturnier.database.SQLDriver;
 import ch.dowa.jassturnier.database.SQLQuerryExecutor;
 import ch.dowa.jassturnier.objectModel.Gang;
@@ -25,10 +26,14 @@ public class TurnierController {
 
     private Turnier actTurnier = null;
     private JassturnierGui myGui;
+    private String vName = null;
+    private String vLogoPath = null;
 
     public TurnierController(JassturnierGui gui) {
         myGui = gui;
         SQLDriver.getInstance().setGui(gui);
+        vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
+        vLogoPath = !ResourceLoader.readProperty("LOGOPATH").isEmpty() ? ResourceLoader.readProperty("LOGOPATH") : null;
     }
 
     public void setActTurnier(Turnier actTurnier) {
@@ -37,6 +42,22 @@ public class TurnierController {
 
     public Turnier getActTurnier() {
         return actTurnier;
+    }
+    
+    public void setvName(String vName) {
+        this.vName = vName;
+    }
+
+    public void setvLogoPath(String vLogoPath) {
+        this.vLogoPath = vLogoPath;
+    }
+
+    public String getvName() {
+        return vName;
+    }
+
+    public String getvLogoPath() {
+        return vLogoPath;
     }
 
     public static final Turnier createAndSaveNewTurnier(int jahr, int anzahlTische) {
@@ -152,7 +173,11 @@ public class TurnierController {
         ArrayList<String> tables = new ArrayList<>();
         ArrayList<String> seats = new ArrayList<>();
         if (actTurnier.numberOfGaenge() > 0) {
-            String[] placeLables = SQLQuerryExecutor.getPlaces();
+            String[] placeLables = new String[4];
+            placeLables[0] = ResourceLoader.readProperty("PLACE1");
+            placeLables[1] = ResourceLoader.readProperty("PLACE2");
+            placeLables[2] = ResourceLoader.readProperty("PLACE3");
+            placeLables[3] = ResourceLoader.readProperty("PLACE4");
             ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(actTurnier.getId());
             Gang g = actTurnier.getGaenge().get(gangIndex);
             for (Map m : result) {
@@ -227,6 +252,14 @@ public class TurnierController {
         loadTurnier(actTurnier.getId());
 
     }
+    
+    public void changeDbPath(String newPath) throws Exception{
+        if(actTurnier == null){
+            SQLDriver.getInstance().setDataBasePath(newPath);
+        } else {
+            throw new Exception("Der Datenbankpfad kann nicht geändert werden wenn ein Turnier geöffnet ist.");
+        }
+    }
 
     public class PlaceMappingType {
 
@@ -247,7 +280,7 @@ public class TurnierController {
         public ArrayList<String> getTables() {
             return tables;
         }
-
+        
         public ArrayList<String> getSeats() {
             return seats;
         }
