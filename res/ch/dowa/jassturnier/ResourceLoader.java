@@ -101,7 +101,6 @@ public class ResourceLoader {
         prop.setProperty("PLACE2", "B");
         prop.setProperty("PLACE3", "C");
         prop.setProperty("PLACE4", "D");
-        prop.setProperty("VNAME", "");
         prop.setProperty("LOGOPATH", "");
         return prop;
     }

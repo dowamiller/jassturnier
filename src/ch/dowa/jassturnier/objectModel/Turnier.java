@@ -15,8 +15,11 @@ import ch.dowa.jassturnier.database.SQLQuerryExecutor;
 public class Turnier {
     
     private int id;
+    private String turnierTitel;
     private int anzahlTische;
-    private int jahr;
+    private int anzahlGaenge;
+    private int anzahlSpiele;
+    
     private ArrayList<Spieler> spieler;
     private ArrayList<Gang> gaenge;
 
@@ -29,12 +32,26 @@ public class Turnier {
     }
 
     
-    public Turnier(int ID, int Jahr, int anzTische ){
+    public Turnier(int ID, String turnierTitel, int anzTische, int anzGaenge, int anzSpiele){
         this.id = ID;
-        this.jahr = Jahr;
+        this.turnierTitel = turnierTitel;
+        this.anzahlGaenge = anzGaenge;
+        this.anzahlSpiele = anzSpiele;
         this.anzahlTische = anzTische;
         this.spieler = new ArrayList<>();
         this.gaenge = new ArrayList<>();
+    }
+    
+    public String getTurnierTitel() {
+        return turnierTitel;
+    }
+
+    public int getAnzahlGaengeTotal() {
+        return anzahlGaenge;
+    }
+
+    public int getAnzahlSpiele() {
+        return anzahlSpiele;
     }
 
     public int getId() {
@@ -44,10 +61,11 @@ public class Turnier {
     public int getAnzahlTische() {
         return anzahlTische;
     }
-
-    public int getJahr() {
-        return jahr;
+    
+    public void setAnzahlTische(int anzTische) {
+        anzahlTische = anzTische;
     }
+
     
     public void addSpieler (Spieler s){
         this.spieler.add(s);
@@ -57,7 +75,7 @@ public class Turnier {
         this.gaenge.add(g);
     }
     
-    public int numberOfGaenge(){
+    public int getAnzahlGaengeAktuell(){
         return gaenge.size();
     }
     

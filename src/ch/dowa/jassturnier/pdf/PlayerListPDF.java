@@ -6,16 +6,11 @@
 package ch.dowa.jassturnier.pdf;
 
 import ch.dowa.jassturnier.ResourceLoader;
-import static ch.dowa.jassturnier.pdf.PdfUtils.*;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.*;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.vandeseer.easytable.TableDrawer;
 import static org.vandeseer.easytable.settings.HorizontalAlignment.LEFT;
 import org.vandeseer.easytable.structure.Row;
 import org.vandeseer.easytable.structure.Table;
@@ -28,15 +23,14 @@ import org.vandeseer.easytable.structure.cell.CellText;
  */
 public class PlayerListPdf {
 
-    public static void exportPlayerList(ArrayList<String> playerNames, String year) throws IOException  {
-        String vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
+    public static void exportPlayerList(ArrayList<String> playerNames, String turnierTitel) throws IOException  {
+        PdfGenerator gen = new PdfGenerator(PDRectangle.A4);
         String outputFileName;
-        outputFileName =  vName != null ? vName.replace(' ', '_') + "_" : "";
-        outputFileName += "Jassturnier_" + year + "_Spielerliste.pdf";
-        String titel = ((vName != null) ? vName + " " : "") + "Jassturnier " + year + " - Spielerliste";
+        outputFileName =  turnierTitel.replace(' ', '_') + "_Spielerliste.pdf";
+        String titel = turnierTitel + " - Spielerliste";
 
         final Table.TableBuilder tableBuilder = Table.builder()
-            .addColumnsOfWidth((float)(TABEL_WIDTH * 0.6),(float) (TABEL_WIDTH * 0.2),(float) (TABEL_WIDTH * 0.2))
+            .addColumnsOfWidth((float)(gen.tabelWidth() * 0.6),(float) (gen.tabelWidth() * 0.2),(float) (gen.tabelWidth() * 0.2))
             .fontSize(10)
             .font(STANDART_FONT)
             .borderColor(Color.WHITE);
@@ -62,7 +56,7 @@ public class PlayerListPdf {
                 i++;
         }
 
-        PdfUtils.exportTemplateWithTable(tableBuilder, outputFileName, titel);
+        gen.exportTemplateWithTable(tableBuilder, outputFileName, titel);
     }
 
 }

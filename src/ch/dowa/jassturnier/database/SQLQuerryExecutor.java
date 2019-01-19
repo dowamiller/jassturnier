@@ -76,8 +76,10 @@ public class SQLQuerryExecutor {
         ArrayList<Map<String, Object>> resultSet = SQLDriver.getInstance().executeQuerry(querry);
         return new Turnier(
                 (Integer) resultSet.get(0).get("ID"),
-                (Integer) resultSet.get(0).get("JAHR"),
-                (Integer) resultSet.get(0).get("ANZAHLTISCHE")
+                (String) resultSet.get(0).get("TURNIERTITEL"),
+                (Integer) resultSet.get(0).get("ANZAHLTISCHE"),
+                (Integer) resultSet.get(0).get("ANZAHLGAENGE"),
+                (Integer) resultSet.get(0).get("ANZAHLSPIELE")
         );
     }
 

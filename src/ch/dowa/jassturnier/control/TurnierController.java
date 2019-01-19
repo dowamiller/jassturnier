@@ -32,7 +32,6 @@ public class TurnierController {
     public TurnierController(JassturnierGui gui) {
         myGui = gui;
         SQLDriver.getInstance().setGui(gui);
-        vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
         vLogoPath = !ResourceLoader.readProperty("LOGOPATH").isEmpty() ? ResourceLoader.readProperty("LOGOPATH") : null;
     }
 
@@ -60,10 +59,10 @@ public class TurnierController {
         return vLogoPath;
     }
 
-    public static final Turnier createAndSaveNewTurnier(int jahr, int anzahlTische) {
+    public static final Turnier createAndSaveNewTurnier(String turnierTitel, int anzGaenge, int anzSpiele , int anzTische) {
         int id = SQLQuerryExecutor.getLastIDofTable("turnier") + 1;
-        Turnier t = new Turnier(id, jahr, anzahlTische);
-        String[] values = {String.valueOf(id), String.valueOf(jahr), String.valueOf(anzahlTische)};
+        Turnier t = new Turnier(id, turnierTitel, anzTische, anzGaenge, anzSpiele);
+        String[] values = {String.valueOf(id), "'" + turnierTitel + "'", String.valueOf(anzGaenge), String.valueOf(anzSpiele), String.valueOf(anzTische)};
         SQLQuerryExecutor.addValuesToTable("turnier", values);
         return t;
     }
@@ -88,7 +87,7 @@ public class TurnierController {
 
     public void startAndSaveNewGang() {
         int newGangID = SQLQuerryExecutor.getLastIDofTable("gang") + 1;
-        Gang g = new Gang(newGangID, actTurnier.numberOfGaenge() + 1);
+        Gang g = new Gang(newGangID, actTurnier.getAnzahlGaengeAktuell() + 1);
         String[] values = {
             String.valueOf(g.getId()),
             String.valueOf(g.getGangNr()),
@@ -172,7 +171,7 @@ public class TurnierController {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> tables = new ArrayList<>();
         ArrayList<String> seats = new ArrayList<>();
-        if (actTurnier.numberOfGaenge() > 0) {
+        if (actTurnier.getAnzahlGaengeAktuell() > 0) {
             String[] placeLables = new String[4];
             placeLables[0] = ResourceLoader.readProperty("PLACE1");
             placeLables[1] = ResourceLoader.readProperty("PLACE2");
@@ -211,13 +210,10 @@ public class TurnierController {
         setUpTurnier(selectedTurnierID);
         setUpPlayers(selectedTurnierID);
         setUpGaenge(selectedTurnierID);
-        myGui.cleanGameTable();
         for (Gang g : actTurnier.getGaenge()) {
             setUpTeams(g);
             setUpGames(g);
-            myGui.refreshGameTable(g);
         }
-        myGui.refreshRankingTable();
     }
 
     private void setUpTurnier(int selectedTurnierID) {

@@ -1,7 +1,9 @@
 create table if not exists Turnier(
     ID int,
-    Jahr int,
-    anzahlTische int,
+    TurnierTitel varchar(70),
+    AnzahlGaenge int,
+    AnzahlSpiele int,
+    AnzahlTische int,
     primary key(ID)
     );
     
@@ -49,6 +51,6 @@ create table if not exists Spiel(
     Team2 int,
     primary key(ID),
     foreign key(Gang) references Gang(ID) ON DELETE CASCADE,
-    foreign key(Team1) references Team(ID),
-    foreign key(Team2) references Team(ID)
+    foreign key(Team1) references Team(ID) ON DELETE CASCADE,
+    foreign key(Team2) references Team(ID) ON DELETE CASCADE,
     );

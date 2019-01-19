@@ -7,15 +7,15 @@ package ch.dowa.jassturnier.pdf;
 
 import ch.dowa.jassturnier.ResourceLoader;
 import ch.dowa.jassturnier.control.TurnierController;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_HEADER;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_ROW_EVEN;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_ROW_ODD;
-import static ch.dowa.jassturnier.pdf.PdfUtils.STANDART_FONT;
-import static ch.dowa.jassturnier.pdf.PdfUtils.STANDART_FONT_BOLD;
-import static ch.dowa.jassturnier.pdf.PdfUtils.TABEL_WIDTH;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_HEADER;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_ROW_EVEN;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_ROW_ODD;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.STANDART_FONT;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.STANDART_FONT_BOLD;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import static org.vandeseer.easytable.settings.HorizontalAlignment.LEFT;
 import static org.vandeseer.easytable.settings.HorizontalAlignment.RIGHT;
 import org.vandeseer.easytable.structure.Row;
@@ -28,15 +28,14 @@ import org.vandeseer.easytable.structure.cell.CellText;
  */
 public class PlaceMappingPdf {
     
-    public static void exportPlaceMapping(TurnierController.PlaceMappingType placeMapping, int gangNr, String year) throws IOException {        
-        String vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
+    public static void exportPlaceMapping(TurnierController.PlaceMappingType placeMapping, int gangNr, String turnierTitel) throws IOException {
+        PdfGenerator gen = new PdfGenerator(PDRectangle.A4);        
         String outputFileName;
-        outputFileName = vName != null ? vName.replace(' ', '_') + "_" : "";
-        outputFileName += "Jassturnier_" + year + "_Platzzuweisung_Gang_" + String.valueOf(gangNr) + ".pdf";
-        String titel = ((vName != null) ? vName + " " : "") + "Jassturnier " + year + " - Platzzuweisung Gang " + String.valueOf(gangNr);
+        outputFileName = turnierTitel.replace(' ', '_') + "_Platzzuweisung_Gang_" + String.valueOf(gangNr) + ".pdf";
+        String titel = turnierTitel + " - Platzzuweisung Gang " + String.valueOf(gangNr);
         
         final Table.TableBuilder tableBuilder = Table.builder()
-            .addColumnsOfWidth((float)(TABEL_WIDTH * 0.6),(float) (TABEL_WIDTH * 0.2),(float) (TABEL_WIDTH * 0.2))
+            .addColumnsOfWidth((float)(gen.tabelWidth() * 0.6),(float) (gen.tabelWidth() * 0.2),(float) (gen.tabelWidth() * 0.2))
             .fontSize(10)
             .font(STANDART_FONT)
             .borderColor(Color.WHITE);
@@ -66,7 +65,7 @@ public class PlaceMappingPdf {
 
         }
         
-        PdfUtils.exportTemplateWithTable(tableBuilder, outputFileName, titel);
+        gen.exportTemplateWithTable(tableBuilder, outputFileName, titel);
     }
     
 }

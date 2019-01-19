@@ -6,21 +6,20 @@
 package ch.dowa.jassturnier.pdf;
 
 import ch.dowa.jassturnier.ResourceLoader;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_HEADER;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_ROW_EVEN;
-import static ch.dowa.jassturnier.pdf.PdfUtils.BACKGROUND_ROW_ODD;
-import static ch.dowa.jassturnier.pdf.PdfUtils.STANDART_FONT;
-import static ch.dowa.jassturnier.pdf.PdfUtils.STANDART_FONT_BOLD;
-import static ch.dowa.jassturnier.pdf.PdfUtils.TABEL_WIDTH;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_HEADER;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_ROW_EVEN;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.BACKGROUND_ROW_ODD;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.STANDART_FONT;
+import static ch.dowa.jassturnier.pdf.PdfGenerator.STANDART_FONT_BOLD;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import static org.vandeseer.easytable.settings.HorizontalAlignment.LEFT;
 import static org.vandeseer.easytable.settings.HorizontalAlignment.RIGHT;
 import org.vandeseer.easytable.structure.Row;
@@ -33,7 +32,9 @@ import org.vandeseer.easytable.structure.cell.CellText;
  */
 public class RankingPdf {
     
-    public static void exportRanking(HashMap<Integer, String> names,  HashMap<Integer, ArrayList<Long>> points, int gangNr, String year)throws IOException{
+    public static void exportRanking(HashMap<Integer, String> names,  HashMap<Integer, ArrayList<Long>> points, int gangNr, String turnierTitel, boolean schlussrangliste)throws IOException{
+        
+        PdfGenerator gen = new PdfGenerator(PDRectangle.A4);
         LinkedHashMap<Integer, ArrayList<Long>> sortedPoints; 
         sortedPoints = points
                 .entrySet()
@@ -48,20 +49,17 @@ public class RankingPdf {
                     return oldValue;
                 }, LinkedHashMap::new));
         sortedPoints.keySet().forEach(id -> System.out.println(names.get(id) + points.get(id).toString()));
-        
-        String vName = !ResourceLoader.readProperty("VNAME").isEmpty() ? ResourceLoader.readProperty("VNAME") : null;
+
         String outputFileName;
-        outputFileName =  vName != null ? vName.replace(' ', '_') + "_" : "";
-        outputFileName += "Jassturnier_" + year + "_" + (gangNr == 4 ? "Schlussrangliste" : "Zwischenrangliste_Gang_" + String.valueOf(gangNr)) + ".pdf";
-        String titel = ((vName != null) ? vName + " " : "") 
-                + "Jassturnier " + year + " - " 
-                + (gangNr == 4 ? "Schlussrangliste" : "Zwischenrangliste Gang " + String.valueOf(gangNr));
+        outputFileName =  turnierTitel.replace(' ', '_') + "_" + (schlussrangliste ? "Schlussrangliste" : "Zwischenrangliste_Gang_" + String.valueOf(gangNr)) + ".pdf";
+        String titel = turnierTitel + " - " 
+                + (schlussrangliste ? "Schlussrangliste" : "Zwischenrangliste Gang " + String.valueOf(gangNr));
         
         Table.TableBuilder tableBuilder = Table.builder();
-        tableBuilder = tableBuilder.addColumnOfWidth((float) (TABEL_WIDTH * 0.1));
-        tableBuilder = tableBuilder.addColumnOfWidth((float) (TABEL_WIDTH * (1 - (0.1 * (gangNr + 1)))));
+        tableBuilder = tableBuilder.addColumnOfWidth((float) (gen.tabelWidth() * 0.1));
+        tableBuilder = tableBuilder.addColumnOfWidth((float) (gen.tabelWidth() * (1 - (0.12 * (gangNr + 1)))));
         for( int i = 1 ; i <= gangNr ; i++ ){
-            tableBuilder = tableBuilder.addColumnOfWidth((float) (TABEL_WIDTH * 0.1));
+            tableBuilder = tableBuilder.addColumnOfWidth((float) (gen.tabelWidth()  * 0.12));
         } 
         tableBuilder.fontSize(10)
             .font(STANDART_FONT)
@@ -109,6 +107,6 @@ public class RankingPdf {
             j++;
         }
         
-        PdfUtils.exportTemplateWithTable(tableBuilder, outputFileName, titel);
+        gen.exportTemplateWithTable(tableBuilder, outputFileName, titel);
     }
 }
