@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.pdfbox.io.IOUtils;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -28,6 +29,15 @@ public class ResourceLoader {
 
     public static InputStreamReader getSqlFile(String filename) {
         return new InputStreamReader(rl.getClass().getResourceAsStream("sql/" + filename));
+    }
+    
+    public static byte[] getIcon(String filename){
+        try {
+            return IOUtils.toByteArray(rl.getClass().getResourceAsStream("icons/" + filename));
+        } catch (IOException ex) {
+            Logger.getLogger(ResourceLoader.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     public static String readProperty(String propertyName) {
@@ -94,8 +104,10 @@ public class ResourceLoader {
     }
 
     private static Properties getDefaultProperties() {
+        String db = "jdbc:h2:";
+        System.out.println(db);
         Properties prop = new Properties();
-        prop.setProperty("MySQLServerUrl", "jdbc:h2:./data/");
+        prop.setProperty("DB", db);
         prop.setProperty("DBPATH", "./data/");
         prop.setProperty("PLACE1", "A");
         prop.setProperty("PLACE2", "B");

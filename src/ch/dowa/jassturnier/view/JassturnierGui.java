@@ -75,7 +75,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         controller = new TurnierController(this);
 
         changeNameTable.getModel().addTableModelListener(new changeNameTableModelListener());
-        if(controller.getvLogoPath() != null){
+        if (controller.getvLogoPath() != null) {
             try {
                 image = ImageIO.read(new File(controller.getvLogoPath()));
             } catch (IOException ex) {
@@ -184,6 +184,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         exportPlayerItem = new javax.swing.JMenuItem();
         exportRankintItem = new javax.swing.JMenuItem();
         exportPlaceMappingItem = new javax.swing.JMenuItem();
+        exportSheetsItem = new javax.swing.JMenuItem();
         menuSettings = new javax.swing.JMenu();
         changePropertiesItem = new javax.swing.JMenuItem();
 
@@ -1222,6 +1223,15 @@ public class JassturnierGui extends javax.swing.JFrame {
         });
         menuPrint.add(exportPlaceMappingItem);
 
+        exportSheetsItem.setText("Spielblätter exportieren");
+        exportSheetsItem.setEnabled(false);
+        exportSheetsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportSheetsItemActionPerformed(evt);
+            }
+        });
+        menuPrint.add(exportSheetsItem);
+
         menuBar.add(menuPrint);
 
         menuSettings.setText("Einstellungen");
@@ -1260,10 +1270,10 @@ public class JassturnierGui extends javax.swing.JFrame {
     private void startTurnierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startTurnierActionPerformed
         if (Integer.parseInt(additionalPlayerLable.getText()) == 0 && Integer.parseInt(numberOfTablesLabel.getText()) > 0) {
             Turnier t = TurnierController.createAndSaveNewTurnier(
-                turnierTitelTextField.getText(), 
-                (int) anzGaengeSpinner.getModel().getValue(),
-                (int) anzSpieleSpinner.getModel().getValue(), 
-                Integer.parseInt(numberOfTablesLabel.getText())
+                    turnierTitelTextField.getText(),
+                    (int) anzGaengeSpinner.getModel().getValue(),
+                    (int) anzSpieleSpinner.getModel().getValue(),
+                    Integer.parseInt(numberOfTablesLabel.getText())
             );
             controller.setActTurnier(t);
             int[] turnierPlayerIDs = new int[turnierPlayerTable.getRowCount()];
@@ -1283,6 +1293,8 @@ public class JassturnierGui extends javax.swing.JFrame {
             exportPlayerItem.setEnabled(true);
             exportRankintItem.setEnabled(false);
             exportPlaceMappingItem.setEnabled(false);
+
+            exportSheetsItem.setEnabled(false);
         } else {
             JOptionPane.showMessageDialog(turnierWizzardDialog, "Es müssen noch weitere Turnierspieler hinzugefügt werden.");
         }
@@ -1292,9 +1304,9 @@ public class JassturnierGui extends javax.swing.JFrame {
         preNameTextField.setText("");
         nameTextField.setText("");
         Object source = evt.getSource();
-        if (evt.getSource() == addPlayerButton){
+        if (evt.getSource() == addPlayerButton) {
             turnierOverviewDialog.setAlwaysOnTop(false);
-        } else if (evt.getSource() == addPlayerButtonChange){
+        } else if (evt.getSource() == addPlayerButtonChange) {
             changePlayerListDialog.setAlwaysOnTop(false);
         }
         addPlayerDialog.repaint();
@@ -1337,7 +1349,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             addGangTabToGameBoard("Gang " + String.valueOf(controller.getActTurnier().getAnzahlGaengeAktuell() + 1));
             controller.startAndSaveNewGang();
             exportPlaceMapping(controller.getActTurnier().getGaenge().get(controller.getActTurnier().getAnzahlGaengeAktuell() - 1));
-            
+            exportPlaceTableSheets(controller.getActTurnier().getGaenge().get(controller.getActTurnier().getAnzahlGaengeAktuell() - 1));
             changeNamesItem.setEnabled(true);
             closeTurnierItem.setEnabled(true);
             changePlayerListItem.setEnabled(false);
@@ -1347,7 +1359,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             exportPlayerItem.setEnabled(true);
             exportRankintItem.setEnabled(true);
             exportPlaceMappingItem.setEnabled(true);
-            
+            exportSheetsItem.setEnabled(true);
         } else {
             JOptionPane.showMessageDialog(this, "Es sind noch nicht alle Spiele des aktuellen Ganges gespielt.");
         }
@@ -1376,25 +1388,27 @@ public class JassturnierGui extends javax.swing.JFrame {
             }
             refreshRankingTable();
             turnierOverviewDialog.setVisible(false);
-            
+
             changeNamesItem.setEnabled(true);
             closeTurnierItem.setEnabled(true);
             exportPlayerItem.setEnabled(true);
-            
-            if(controller.getActTurnier().getAnzahlGaengeAktuell() >= 0){
+
+            if (controller.getActTurnier().getAnzahlGaengeAktuell() >= 0) {
                 changePlayerListItem.setEnabled(true);
                 newRoundItem.setEnabled(false);
                 startTurnierItem.setEnabled(true);
                 exportRankintItem.setEnabled(false);
                 exportPlaceMappingItem.setEnabled(false);
+                exportSheetsItem.setEnabled(false);
             }
-            if (controller.getActTurnier().getAnzahlGaengeAktuell() > 0){
+            if (controller.getActTurnier().getAnzahlGaengeAktuell() > 0) {
                 changePlayerListItem.setEnabled(false);
                 newRoundItem.setEnabled(true);
                 startTurnierItem.setEnabled(false);
                 exportPlaceMappingItem.setEnabled(true);
+                exportSheetsItem.setEnabled(true);
             }
-            if (controller.getActTurnier().getAnzahlGaengeAktuell() >= controller.getActTurnier().getAnzahlGaengeTotal()){
+            if (controller.getActTurnier().getAnzahlGaengeAktuell() >= controller.getActTurnier().getAnzahlGaengeTotal()) {
                 exportRankintItem.setEnabled(true);
             }
         }
@@ -1449,19 +1463,19 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     private void exportPlayerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportPlayerItemActionPerformed
 
-    ArrayList<String> names = new ArrayList<>();
-    ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
-    for (Map m : result) {
-        String name = (String) m.get("NACHNAME") + " " + (String) m.get("VORNAME");
-        names.add(name);
-    }
-    try {
-        PlayerListPdf.exportPlayerList(names,controller.getActTurnier().getTurnierTitel());
-        JOptionPane.showMessageDialog(this, "Die Spielerliste wurde exportier.");
-    } catch (IOException ex) {
-        Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
-        JOptionPane.showMessageDialog(this, "Die Spielerliste konnte nicht exportiert werden.");
-    }
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getAlphabeticalTurnierplayerList(controller.getActTurnier().getId());
+        for (Map m : result) {
+            String name = (String) m.get("NACHNAME") + " " + (String) m.get("VORNAME");
+            names.add(name);
+        }
+        try {
+            PlayerListPdf.exportPlayerList(names, controller.getActTurnier().getTurnierTitel());
+            JOptionPane.showMessageDialog(this, "Die Spielerliste wurde exportier.");
+        } catch (IOException ex) {
+            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Die Spielerliste konnte nicht exportiert werden.");
+        }
 
     }//GEN-LAST:event_exportPlayerItemActionPerformed
 
@@ -1523,8 +1537,6 @@ public class JassturnierGui extends javax.swing.JFrame {
             dbPathTextField.setText(pathChooser.getSelectedFile().getPath());
         }
         changePropertiesDialog.setAlwaysOnTop(true);
-
-
     }//GEN-LAST:event_searchDbPathButtonActionPerformed
 
     private void closeTurnierItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeTurnierItemActionPerformed
@@ -1538,6 +1550,8 @@ public class JassturnierGui extends javax.swing.JFrame {
         exportPlayerItem.setEnabled(false);
         exportRankintItem.setEnabled(false);
         exportPlaceMappingItem.setEnabled(false);
+
+        exportSheetsItem.setEnabled(false);
         cleanGameTable();
         refreshRankingTable();
         tabGang.removeAll();
@@ -1559,17 +1573,17 @@ public class JassturnierGui extends javax.swing.JFrame {
     }//GEN-LAST:event_searchvLogoPathButtonActionPerformed
 
     private void jPanelResized(java.awt.event.HierarchyEvent evt) {//GEN-FIRST:event_jPanelResized
-       //imageLabel.setSize(vLogoPanel.getSize());
+        //imageLabel.setSize(vLogoPanel.getSize());
     }//GEN-LAST:event_jPanelResized
 
     private void vLogoPathTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vLogoPathTextFieldActionPerformed
-       System.out.println();
-            try {
-                image = ImageIO.read(new File(evt.getActionCommand()));
-            } catch (IOException ex) {
-                image = null;
-            }
-            showLogoInChangePropertiesDialog();
+        System.out.println();
+        try {
+            image = ImageIO.read(new File(evt.getActionCommand()));
+        } catch (IOException ex) {
+            image = null;
+        }
+        showLogoInChangePropertiesDialog();
     }//GEN-LAST:event_vLogoPathTextFieldActionPerformed
 
     private void addPlayerDialogPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_addPlayerDialogPropertyChange
@@ -1585,8 +1599,9 @@ public class JassturnierGui extends javax.swing.JFrame {
             addGangTabToGameBoard("Gang " + String.valueOf(controller.getActTurnier().getAnzahlGaengeAktuell() + 1));
             controller.startAndSaveNewGang();
             exportPlaceMapping(controller.getActTurnier().getGaenge().get(0));
+            exportPlaceTableSheets(controller.getActTurnier().getGaenge().get(0));
             JOptionPane.showMessageDialog(this, "Das Turnier ist gestartet.");
-            
+
             changeNamesItem.setEnabled(true);
             closeTurnierItem.setEnabled(true);
             changePlayerListItem.setEnabled(false);
@@ -1595,9 +1610,15 @@ public class JassturnierGui extends javax.swing.JFrame {
             startTurnierItem.setEnabled(false);
             exportPlayerItem.setEnabled(true);
             exportRankintItem.setEnabled(false);
-            exportPlaceMappingItem.setEnabled(true);   
-        } 
+            exportPlaceMappingItem.setEnabled(true);
+
+            exportSheetsItem.setEnabled(true);
+        }
     }//GEN-LAST:event_startTurnierItemActionPerformed
+
+    private void exportSheetsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportSheetsItemActionPerformed
+        exportPlaceTableSheets(controller.getActTurnier().getGaenge().get(tabGang.getSelectedIndex()));
+    }//GEN-LAST:event_exportSheetsItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1657,6 +1678,7 @@ public class JassturnierGui extends javax.swing.JFrame {
     private javax.swing.JMenuItem exportPlaceMappingItem;
     private javax.swing.JMenuItem exportPlayerItem;
     private javax.swing.JMenuItem exportRankintItem;
+    private javax.swing.JMenuItem exportSheetsItem;
     private javax.swing.JLabel imageLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1841,7 +1863,7 @@ public class JassturnierGui extends javax.swing.JFrame {
                     rang += 1;
                 }
             } else {
-                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().getAnzahlGaengeAktuell(),false);
+                ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), controller.getActTurnier().getAnzahlGaengeAktuell(), false);
                 Vector row;
                 int rang = 1;
                 for (Map m : result) {
@@ -1859,30 +1881,28 @@ public class JassturnierGui extends javax.swing.JFrame {
 
     public void cleanGameTable() {
         javax.swing.JTable[] gangTables;
-        
-        
-        
+
         gangTables = getGangTables();
-        
+
         for (javax.swing.JTable t : gangTables) {
             DefaultTableModel model = (DefaultTableModel) t.getModel();
             model.setRowCount(0);
         }
     }
 
-    private javax.swing.JTable[] getGangTables(){
+    private javax.swing.JTable[] getGangTables() {
         Component[] components = tabGang.getComponents();
         ArrayList<javax.swing.JTable> gangTables = new ArrayList<>();
-        for (Component comp : components){
+        for (Component comp : components) {
             if (comp.getClass() == javax.swing.JScrollPane.class) {
-                javax.swing.JViewport viewport = ((javax.swing.JScrollPane)comp).getViewport(); 
-                gangTables.add((JTable)viewport.getView());
+                javax.swing.JViewport viewport = ((javax.swing.JScrollPane) comp).getViewport();
+                gangTables.add((JTable) viewport.getView());
             }
         }
         javax.swing.JTable[] gangTablesArray = new javax.swing.JTable[gangTables.size()];
         return gangTables.toArray(gangTablesArray);
-    }     
-    
+    }
+
     public void refreshGameTable(Gang g) {
         javax.swing.JTable[] gangTables;
         gangTables = getGangTables();
@@ -1918,7 +1938,7 @@ public class JassturnierGui extends javax.swing.JFrame {
             ArrayList<Map<String, Object>> result = SQLQuerryExecutor.getRanking(controller.getActTurnier().getId(), gangIndex, true);
             for (int i = 0; i < result.size(); i++) {
                 Map<String, Object> m = result.get(i);
-                if (gangIndex == 1){
+                if (gangIndex == 1) {
                     names.put(i, (String) m.get("VORNAME") + " " + (String) m.get("NACHNAME"));
                     pointList = new ArrayList<>();
                     pointList.add((Long) m.get("SUM(T.PUNKTE)"));
@@ -1982,35 +2002,43 @@ public class JassturnierGui extends javax.swing.JFrame {
             return (int) turnierOverviewTable.getModel().getValueAt(rowIndex, 0);
         }
     }
-    
+
     private void showLogoInChangePropertiesDialog() {
         if (image != null) {
             imageLabel.setText(null);
             int maxSize = 500;
             int h = image.getHeight();
             int w = image.getWidth();
-            int nh = (h >= w) ? maxSize :  (int)(((float) h / (float) w) * maxSize);
-            int nw = (h<=w) ? maxSize :  (int)(((float) w / (float) h) * maxSize);
+            int nh = (h >= w) ? maxSize : (int) (((float) h / (float) w) * maxSize);
+            int nw = (h <= w) ? maxSize : (int) (((float) w / (float) h) * maxSize);
             ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
             imageLabel.setIcon(imageIcon);
         } else {
             imageLabel.setIcon(null);
             imageLabel.setText("Kein Logo ausgewählt.");
         }
-        
+
     }
 
     private void exportPlaceMapping(Gang gang) {
         TurnierController.PlaceMappingType mapping = controller.getPlaceMapping(gang.getGangNr() - 1);
         try {
             PlaceMappingPdf.exportPlaceMapping(mapping, gang.getGangNr(), controller.getActTurnier().getTurnierTitel());
-            TabelSheetsPdf.exportTabelSheets(gang, controller.getActTurnier().getTurnierTitel());
             JOptionPane.showMessageDialog(this, "Die Platzzuweisung wurde exportiert.");
         } catch (IOException ex) {
             Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(this, "Die Platzzuweisung konnte nicht exportiert werden.");
         }
-        
+    }
+
+    private void exportPlaceTableSheets(Gang gang) {
+        try {
+            TabelSheetsPdf.exportTabelSheets(gang, controller.getActTurnier().getTurnierTitel(), controller.getActTurnier().getAnzahlSpiele());
+            JOptionPane.showMessageDialog(this, "Die Spielbläter wurden exportiert.");
+        } catch (IOException ex) {
+            Logger.getLogger(JassturnierGui.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Die Spielbläter konnten nicht exportiert werden.");
+        }
     }
 
     private void setUpPropertiesDialog() {
@@ -2033,37 +2061,35 @@ public class JassturnierGui extends javax.swing.JFrame {
     private void addGangTabToGameBoard(String tabName) {
         javax.swing.JScrollPane scrollGang = new javax.swing.JScrollPane();
         javax.swing.JTable tableGang = new javax.swing.JTable();
-        
-        tableGang.setAutoCreateRowSorter(true);
-        
-        tableGang.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
 
-            },
-            new String [] {
-                "Tisch-Nr.", "Team 1", "Team 2", "Punkte Team 1", "Punkte Team 2"
-            }
+        tableGang.setAutoCreateRowSorter(true);
+
+        tableGang.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "Tisch-Nr.", "Team 1", "Team 2", "Punkte Team 1", "Punkte Team 2"
+                }
         ) {
-            Class[] types = new Class [] {
+            Class[] types = new Class[]{
                 java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
-            boolean[] canEdit = new boolean [] {
+            boolean[] canEdit = new boolean[]{
                 false, false, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+                return canEdit[columnIndex];
             }
         });
-        
+
         tableGang.setRowHeight(30);
         tableGang.setRowMargin(3);
         tableGang.getTableHeader().setReorderingAllowed(false);
-        
+
         if (tableGang.getColumnModel().getColumnCount() > 0) {
             tableGang.getColumnModel().getColumn(0).setResizable(false);
             tableGang.getColumnModel().getColumn(0).setPreferredWidth(35);
@@ -2073,13 +2099,13 @@ public class JassturnierGui extends javax.swing.JFrame {
             tableGang.getColumnModel().getColumn(3).setResizable(false);
             tableGang.getColumnModel().getColumn(4).setResizable(false);
         }
-        
+
         tableGang.getModel().addTableModelListener(new gangTableModelListener());
-        
+
         scrollGang.setViewportView(tableGang);
         tabGang.addTab(tabName, scrollGang);
     }
-    
+
     private class gangTableModelListener implements TableModelListener {
 
         @Override
