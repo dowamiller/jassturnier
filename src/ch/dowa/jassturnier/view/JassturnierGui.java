@@ -806,7 +806,7 @@ public class JassturnierGui extends javax.swing.JFrame {
                 java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -2151,7 +2151,7 @@ public class JassturnierGui extends javax.swing.JFrame {
                 String newName = (String) model.getValueAt(e.getFirstRow(), 1);
                 int playerID = (int) model.getValueAt(e.getFirstRow(), 0);
                 controller.changeName(playerID, newName, newPrename);
-                changeNameDialog.setVisible(false);
+                refreshRankingTable();
             }
         }
 
