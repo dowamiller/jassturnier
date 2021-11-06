@@ -18,8 +18,9 @@ import ch.dowa.jassturnier.pdf.RankingPdf;
 import ch.dowa.jassturnier.pdf.TabelSheetsPdf;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -43,8 +44,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.HashMap;
-import javax.swing.CellRendererPane;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javafx.util.Pair;
 import javax.swing.ImageIcon;
 
 /**
@@ -72,6 +76,8 @@ public class JassturnierGui extends javax.swing.JFrame {
         });
         addMouseListenerPlayerTables(playerTable, turnierPlayerTable, numberOfTablesLabel, additionalPlayerLable);
         addMouseListenerPlayerTables(playerTableChange, turnierPlayerTableChange, numberOfTablesLabelChange, additionalPlayerLableChange);
+        addKeyListenerPlayerTables(playerTable, turnierPlayerTable, numberOfTablesLabel, additionalPlayerLable);
+        addKeyListenerPlayerTables(playerTableChange, turnierPlayerTableChange, numberOfTablesLabelChange, additionalPlayerLableChange);
         controller = new TurnierController(this);
 
         changeNameTable.getModel().addTableModelListener(new changeNameTableModelListener());
@@ -140,6 +146,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         numberOfTablesLabelChange = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         additionalPlayerLableChange = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
         changeNameDialog = new javax.swing.JDialog();
         jScrollPane7 = new javax.swing.JScrollPane();
         changeNameTable = new javax.swing.JTable();
@@ -602,7 +609,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         changePlayerListDialog.setModal(true);
         changePlayerListDialog.setSize(new java.awt.Dimension(2400, 1200));
         java.awt.GridBagLayout changePlayerListDialogLayout = new java.awt.GridBagLayout();
-        changePlayerListDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0};
+        changePlayerListDialogLayout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
         changePlayerListDialogLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
         changePlayerListDialog.getContentPane().setLayout(changePlayerListDialogLayout);
 
@@ -700,7 +707,7 @@ public class JassturnierGui extends javax.swing.JFrame {
         }
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridheight = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -720,7 +727,7 @@ public class JassturnierGui extends javax.swing.JFrame {
 
         jLabel11.setText("Turnierspieler:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -784,6 +791,14 @@ public class JassturnierGui extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         changePlayerListDialog.getContentPane().add(additionalPlayerLableChange, gridBagConstraints);
+
+        jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel20.setText("<->");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        changePlayerListDialog.getContentPane().add(jLabel20, gridBagConstraints);
 
         changeNameDialog.setTitle("Spielernamen ändern");
         changeNameDialog.setAlwaysOnTop(true);
@@ -1692,6 +1707,7 @@ public class JassturnierGui extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1824,6 +1840,7 @@ public class JassturnierGui extends javax.swing.JFrame {
                         }
                         turnierPlayerModel.addRow(row);
                     }
+                    me.consume();
                 }
                 int nRows = tpt.getModel().getRowCount();
                 ntl.setText(String.valueOf(nRows / 4));
@@ -1837,12 +1854,74 @@ public class JassturnierGui extends javax.swing.JFrame {
                     int selectedRow = tpt.convertRowIndexToModel(tpt.getSelectedRow());
                     DefaultTableModel turnierPlayerModel = (DefaultTableModel) tpt.getModel();
                     turnierPlayerModel.removeRow(selectedRow);
+                    me.consume();
                 }
                 int nRows = tpt.getModel().getRowCount();
                 ntl.setText(String.valueOf(nRows / 4));
                 apl.setText(String.valueOf(nRows % 4));
             }
         });
+    }
+    
+    private void addKeyListenerPlayerTables(JTable pt, JTable tpt, JLabel ntl, JLabel apl){
+        pt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent ke){
+                 if(ke.getKeyCode() == KeyEvent.VK_ENTER){
+                    Stream<Pair> selectedIDs = Arrays.stream(pt.getSelectedRows())
+                            .map(ri -> pt.convertRowIndexToModel(ri))
+                            .mapToObj(mi -> new Pair(mi, (int) pt.getModel().getValueAt(mi, 0)));
+                    selectedIDs.forEach(p -> {
+       
+                        boolean isTurnierPlayer = false;
+                        for (int i = 0; i < tpt.getModel().getRowCount(); i++) {
+                            isTurnierPlayer = (int) p.getValue() == (int) tpt.getModel().getValueAt(i, 0);
+                            if (isTurnierPlayer) {
+                                break;
+                            }
+                        }
+                        if (!isTurnierPlayer) {
+                            int nColumns = pt.getModel().getColumnCount();
+                            DefaultTableModel turnierPlayerModel = (DefaultTableModel) tpt.getModel();
+                            Object[] row = new Object[nColumns];
+                            for (int i = 0; i < nColumns; i++) {
+                                row[i] = pt.getModel().getValueAt((int)p.getKey(), i);
+                            }
+                            turnierPlayerModel.addRow(row);
+                        }
+                    });
+                    ke.consume();
+                }
+                int nRows = tpt.getModel().getRowCount();
+                ntl.setText(String.valueOf(nRows / 4));
+                apl.setText(String.valueOf(nRows % 4));
+            }
+        });
+        
+        tpt.addKeyListener(new KeyAdapter (){
+            @Override
+            public void keyReleased(KeyEvent ke){
+               if(ke.getKeyCode() == KeyEvent.VK_DELETE){
+                    int[] selectedIDs = Arrays.stream(tpt.getSelectedRows())
+                            .map(ri -> tpt.convertRowIndexToModel(ri))
+                            .map(mi -> (int) tpt.getModel().getValueAt(mi, 0)).toArray();
+                    for(int id : selectedIDs){
+                        int rowIndex = 0;
+                        for (int i = 0; i < tpt.getModel().getRowCount(); i++) {
+                           if(id == (int)tpt.getModel().getValueAt(i, 0)){
+                               rowIndex = i;
+                               break;
+                           }
+                        }
+                        ((DefaultTableModel) tpt.getModel()).removeRow(rowIndex);
+                    }
+                }
+                int nRows = tpt.getModel().getRowCount();
+                ntl.setText(String.valueOf(nRows / 4));
+                apl.setText(String.valueOf(nRows % 4));
+            }
+        });
+    
     }
 
     public void refreshRankingTable() {
